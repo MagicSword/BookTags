@@ -1,12 +1,42 @@
 # Development Notes
 
 
+# Requirement lib
+* pymarc - python library for  MARC manager
+* marcx - easy extenstion of pymarc
+* requests -
+
+
+# 分工
+
+
+* isbn ->  libraryid
+* libraryid -> MARC
+* MARC -> db
+* db-design
+* 二
+
+用 isbn 查到  MARC ，存到 db
+讀 MARC ，存到 db.table 裡
+
+db 
+
+meterial
+* book
+* disc
+* journal 
+
+* ebook
+* e-game
+
+
+
+# Sub
 
 FrontEnd
 1. cli (click)
 2. GUI (?)
-
-
+3. web, flask
 
 BackEnd
 1. SQLAlchemy
@@ -19,13 +49,7 @@ BackEnd
 
 
 
-1. ISBN to lib serial
 
-2. get MARC
-
-3. save  MARC
-
-4. parse MARC to db
 
 
 
@@ -73,6 +97,14 @@ http://library.ylccb.gov.tw/bookSearchList.do?searchtype=simplesearch&execodeHid
 <option value='SU'>主題 </option>
 
 http://library.ylccb.gov.tw/bookDetail.do?id=573643
+
+title
+author
+publisher
+CN'>團體作者
+isbn
+serial
+callnumber
 
 
 http://library.ylccb.gov.tw/exportISOPage.jsp?books=573643
@@ -253,3 +285,8 @@ var classtype = {"DDC":[{"name":"全部","code":"all"},{"name":"電腦科學、�
 
 			</select>
 		</p>
+
+
+Rer:
+1. [UNIMarcReader](https://gist.github.com/isergey/1051026)
+2. [Schema/Book](https://schema.org/Book)

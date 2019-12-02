@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-    __init__.py
+    example.py
     ~~~~~~~~~
-    init
+    A simple command line application to run flask apps.
     :copyright: 2019 Miller
     :license: BSD-3-Clause
 """
@@ -15,18 +15,16 @@
 #     the current directory is changed with os.chdir(), an incorrect
 #     path will be displayed.
 
-import os
+from flask import Flask
+#from config import Config
 
 # --------------------------------------------------------- common routines
-USER_HOME = os.path.expanduser("~")
-Project_HOME = os.path.join(USER_HOME, ".booktags")
-SQL_ALCHEMY_CONN = "sqlite:///{}/booktags.sqlite"
 
-if not os.path.exists(Project_HOME):
-    os.makedirs(Project_HOME)
-
-
-
+def create_app():
+    app = Flask(__name__)
+    from .main import main as main_blueprint
+    app.register_blueprint(main_blueprint)
+    return app
 
 
 if __name__ == '__main__':
