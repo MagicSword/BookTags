@@ -22,7 +22,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.pool import NullPool
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-from . import SQL_ALCHEMY_CONN
+from .. import SQL_ALCHEMY_CONN_PGSQL,SQL_ALCHEMY_CONN
 
 
 engine = None
@@ -34,7 +34,7 @@ def configure_orm():
     global Session
 
     engine_args = {"poolclass": NullPool}
-    engine = create_engine(SQL_ALCHEMY_CONN, **engine_args)
+    engine = create_engine(SQL_ALCHEMY_CONN_PGSQL , **engine_args)
     Session = scoped_session(
         sessionmaker(
             autocommit=False, autoflush=False, bind=engine, expire_on_commit=False

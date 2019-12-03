@@ -21,6 +21,11 @@ import click
 import json
 import re
 from bs4 import BeautifulSoup
+
+import logging
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s : %(message)s',
+                    filename='mylog.txt')
 # --------------------------------------------------------- common routines
 
 DOMAIN = "http://library.ylccb.gov.tw"
@@ -35,32 +40,69 @@ def libraryid_to_marc(libraryid):
     base_url = "http://library.ylccb.gov.tw/exportISOPage.jsp?books="
     url = base_url + libraryid
     res = requests.get(url)
-    record = FatRecord(data=res.content)
+    try:
+        record = FatRecord(data=res.content)
+    except:
+        pass
     #print(filename)
     return(record)
 
 
-def save_marc_record(record,format):
+def save_marc_record(record,format,isbn):
     """Save marc to json or marc file
     default filename :  library.format(json, or marc)
     """
-    for val in record.itervalues('001'):
-        libraryid = val
-    filename = libraryid + '.' + format
+    # for val in record.itervalues('001'):
+    #     #     libraryid = val
+    #     # filename = libraryid + '.' + format
+
     # TODO: save file codec : utf8 , latin-1
     # open(filename,'w',encoding='UTF-8')
-    print("Saving file to : {}".format(filename))
+
     if format == 'json':
-        with open(filename,'w') as fd:
+        filename = './json/' +isbn + '.' + format
+        with open(filename,'w',encoding='UTF-8') as fd:
             json.dump(record.as_json(),fd)
+            print("Saving file to : {}".format(filename))
+            logging.info("Saving file to : {}".format(filename))
     else:
+        filename = './marc/' + isbn + '.' + format
         with open(filename,'wb') as fd:
             fd.write(record.as_marc())
+            print("Saving file to : {}".format(filename))
+            logging.info("Saving file to : {}".format(filename))
+
+def just_save_marc(id,isbn):
+    """just  save marc file"""
+    libraryid = isbn_to_libraryid(isbn)
+
+    if len(libraryid) == 0:
+        #print("{} NULL".format(isbn))
+        filename = "%s%04d-%s.%s" % ('./marc/',id ,isbn,'marc.fail')
+        with open(filename, 'wb') as fd:
+            #fd.write()
+            print("Saving file to : {}".format(filename))
+            logging.info("Saving file to : {}".format(filename))
+
+    else:
+        base_url = "http://library.ylccb.gov.tw/exportISOPage.jsp?books="
+        url = base_url + libraryid[0]
+        res = requests.get(url)
+        filename = "%s%04d-%s.%s" % ('./marc/',id ,isbn,'marc')
+        try:
+            with open(filename,'wb') as fd:
+                fd.write(res.content)
+                print("Saving file to : {}".format(filename))
+                logging.info("Saving file to : {}".format(filename))
+        except:
+            pass
 
 
 
 def isbn_to_libraryid(isbn):
     """ISBN to library Id
+    input :　isbn
+    result : library id list  or 0
 
     """
     #validate  isbn
@@ -75,7 +117,13 @@ def isbn_to_libraryid(isbn):
     # http://library.ylccb.gov.tw/bookSearchList.do?search_field=ISBN&search_input=9789864768240
     # http://library.ylccb.gov.tw/bookDetail.do?id=573643
     # fail  search to result
-    # TODO: ISBN 可能會 1. 缺失 (沒書，或沒 isbn)  2. 有多個記錄(同 isbn 多館藏位置)
+    # TODO: ISBN 可能會
+    #  1. 缺失 (沒書，或沒 isbn)
+    #       -> 傳回 error, or 0
+    #       -> 改去國圖查  http://192.83.186.170/search*cht/?searchtype=i&searcharg=9789865022471
+    #  2. 有多個記錄(同 isbn 多館藏位置)
+    #       -> 結果頁
+    # TODO: 授尋結果，超過一頁？
 
     headers = {'DNT':'1',
            'Accept-Encoding':'gzip, deflate, sdch',
@@ -86,13 +134,35 @@ def isbn_to_libraryid(isbn):
            'Cookie':'cookieActived=true; JSESSIONID=92BA9371A15172528F3815B2998B879C; webpacslb-HTTP-80=PDLLFDMA; __utmt=1; __utma=240264336.628942217.1430060220.1430060220.1430060220.1; __utmb=240264336.2.10.1430060220; __utmc=240264336; __utmz=240264336.1430060220.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)',
            'Connection':'keep-alive'
            }
+    # 這是簡單的 booksearch.do , 長列表是 bookSearchList.do
+    search_url = 'http://library.ylccb.gov.tw/booksearch.do?searchtype=simplesearch&execodeHidden=true&execode=webpac.dataType.book&authoriz=1&search_field=ISBN&search_input=' + isbn
 
-    url1 = 'http://library.ylccb.gov.tw/booksearch.do?searchtype=simplesearch&execodeHidden=true&execode=webpac.dataType.book&authoriz=1&search_field=ISBN&search_input=' + isbn
-    q1 = requests.get(url1,headers=headers)
-    libraryid = re.findall('bookDetail.do\?id=(\d+)' ,q1.text)
+    def get_isbn_search(search_url,headers):
+        """ get isbn search result
 
-    print(libraryid[0])
-    return libraryid[0]
+        :param search_input:
+        :return:
+        """
+        # 找 class = "keysearch"
+        response_search = requests.get(search_url, headers=headers)
+        # soup = BeautifulSoup(response_search.text, 'html.parser')
+        # num_result = soup.find_all(id="totalpage")[0].text
+        # print("Get {} results.".format(num_result))
+        try:
+        # isbn 9789864768813
+        # <script>parent.location.href = 'bookDetail.do?id=564336';</script>
+        # get_libraryid()
+            libraryid_result = re.findall('bookDetail.do\?id=(\d+)', response_search.text)
+            libraryid = []
+            [libraryid.append(i) for i in libraryid_result if not i in libraryid]
+            return libraryid
+        except:
+            pass
+    results = get_isbn_search(search_url,headers)
+    if len(results) == 0:
+        return []
+    else:
+        return results
 
 
 def get_metadata(libraryid):
@@ -155,17 +225,54 @@ def print_marc_record(record):
         recnum += 1
         print('%09d' % recnum, ' ', tield_contents.tag, '  ', ' L', tield_contents.value())
 
+def get_isbn_marc(isbn):
+    """save ISBN to MARC"""
+    libraryids_list = isbn_to_libraryid(isbn)
+    libraryids_list[0]
+
 
 @click.command()
-@click.option('-id', '--libraryid', help='Library book id', default='')
+@click.option('-id', '--libraryid', help='Library book id')
+@click.option('-s', '--isbn', help='Library book ISBN')
 @click.option('-f', '--format', help='output format : json or marc')
-def cli(libraryid,format):
+def cli(libraryid,format,isbn):
     """Query library book and  Save to file.format(json or marc)"""
-    current_record = libraryid_to_marc(libraryid)
-    if format:
-        save_marc_record(current_record,format)
-    else:
-        print_marc_record(current_record)
+    if isbn:
+        libraryid = isbn_to_libraryid(isbn)[0]
+
+    # current_record = libraryid_to_marc(libraryid)
+    # if format:
+    #     save_marc_record(current_record,format,isbn)
+    # else:
+    #     print_marc_record(current_record)
+    just_save_marc(isbn)
+
+
+def batch_cli():
+    import json
+
+    filename = "E:/_Documents/GitHub/PyCharm_Workspace/BookTags/tmp/readmoo_bookshelf.json"
+    count = 0
+
+    fd = open(filename, 'r', encoding='UTF-8')
+    person = json.load(fd)
+
+    for i in person:
+        result = {}
+        count += 1
+        print("%04d -> %s" % (count, i['isbn']))  # id , title, isbn, link
+        logging.info("%04d -> %s" % (count, i['isbn']))
+        just_save_marc(i['id'],i['isbn'])
+
+        # print("%04d -> %s" % (result['id'],(result['libraryids'])))  #id , title, isbn, link
+        if count > 5:
+            break
+
 
 if __name__ == '__main__':
-    cli()
+    #cli()
+    #with open('./tmp/savefilehere.txt','w') as fd:
+    #    fd.write("hello")
+    batch_cli()
+
+

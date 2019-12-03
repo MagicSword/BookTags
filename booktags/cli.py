@@ -33,7 +33,7 @@ def cli(*args, **kwargs):
 
 
 
-@app.cli.command("hello")
+@click.command()
 @click.argument("name")
 def hello_user(name):
     print("Hello! %s" % name)

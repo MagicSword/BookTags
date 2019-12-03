@@ -21,6 +21,8 @@ import os
 USER_HOME = os.path.expanduser("~")
 Project_HOME = os.path.join(USER_HOME, ".booktags")
 SQL_ALCHEMY_CONN = "sqlite:///{}/booktags.sqlite"
+SQL_ALCHEMY_CONN_PGSQL = "postgres+psycopg2://miller:ming22d@localhost:5432/booktags"
+
 
 if not os.path.exists(Project_HOME):
     os.makedirs(Project_HOME)

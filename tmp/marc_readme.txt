@@ -1,0 +1,1 @@
+filename = "%s%04d-%s.%s" % ('./marc/',id ,isbn,'marc.fail')

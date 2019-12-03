@@ -26,6 +26,7 @@ from sqlalchemy import Boolean, Column, DateTime, String, Text, ForeignKey , Int
 from sqlalchemy.ext.declarative import declarative_base
 
 
+
 Base = declarative_base()
 ID_LEN = 100
 STR_LEN = 1024
@@ -34,7 +35,7 @@ STR_LEN = 1024
 
 # https://schema.org.cn/Thing.html
 class ThingClass(Base):
-    __tablename__ = ""
+    __tablename__ = "Thing"
 
     id = Column(String(ID_LEN), primary_key=True)
     name = Column(String(STR_LEN))
@@ -42,6 +43,11 @@ class ThingClass(Base):
     image = Column(String(STR_LEN),nullable=True)
     category = Column(String(STR_LEN),nullable=True)
     description = Column(Text,nullable=True)
+
+    def __repr__(self):
+        return "<{} : (id='{}',name='{}' )>".format(self.__class__.__name__,self.id,self.name)
+
+
 
 class PersonClass(ThingClass):
     pass
@@ -63,7 +69,7 @@ class PersonClass(ThingClass):
 
 
 class CreativeWorkClass(ThingClass):
-    __tablename__ = ""
+    __tablename__ = "CreativeWork"
 
     author = Column(String(STR_LEN))
     translator = Column(String(STR_LEN),nullable=True)
@@ -80,7 +86,7 @@ class CreativeWorkClass(ThingClass):
 
 
 class BookClass(CreativeWorkClass):
-    __tablename__ = ""
+    __tablename__ = "Book"
 
     bookEdition = Column(String(STR_LEN))# 1st,2nd,3th
     bookFormat =  Column(String(STR_LEN))# EBook,Hardcover,Paperback

@@ -1,0 +1,1 @@
+2019-12-04 05:55:57,469 - INFO : type new_list : <class 'list'>
