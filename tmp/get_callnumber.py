@@ -144,13 +144,15 @@ def cli(isbn):
 
 
     for k in row_fail:
-        # if k['fail'] == 'fail':
-        #     #print(k['isbn'] + ".fail")
-        #     k['callnumber'] = get_callnmuber_nbin(k)
-        # else:
-        #     #print(k['isbn'] + '.success')
-        #     #k['callnumber'] = get_callnumber_marc(k)
-        k['callnumber'] = get_callnmuber_nbin(k['isbn'])
+        if k['fail'] == 'fail':
+            print(k['isbn'] + ".fail")
+            #k['callnumber'] = get_callnmuber_nbin(k)
+        else:
+            print(k['isbn'] + '.success' +'--> pass')
+            k['callnumber'] = get_callnumber_marc(k)
+        ##################
+        # search in nbin
+        #k['callnumber'] = get_callnmuber_nbin(k['isbn'])
 
 
 

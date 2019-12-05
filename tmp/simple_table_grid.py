@@ -98,11 +98,25 @@ def get_df(filename):
         # print("{} - {}".format(row['title'], row['callnumber']))
         # print(row['callnumber'])
         # print(row['id'])
+        # tag 輸出 四行，一行10 char, 五中文字
+        # 第一行： 中文書名，五個字
+        # 第二行： 索書號 - 分類號
+        # 第三行： (6 - 3) 前 6 作者名四角號碼，後3 序號
+        # 第四行： 原 索書號 第四行
+        id = row['id']
+        # TODO: 中文取5個字，英文取 10 char , 中英混合？
+        # title
         title = row['title'][:5]
         tmp = (row['callnumber']).split()
-        if len(tmp) > 3:
-            callnumber = "{}\n{}\n".format( tmp[0],tmp[1],tmp[2])
+        if len(tmp[1]) > 6:
+            tmp_line = "{}-{:03d}".format(tmp[1][:6],int(id))
         else:
+            tmp_line = "{}-{:03d}".format(tmp[1], int(id))
+        tmp_line = tmp_line[:10]
+        if len(tmp) > 3:
+            callnumber = "{}\n{}\n{}".format( tmp[0],tmp_line,tmp[2])
+        else:
+            tmp[1] = tmp_line
             callnumber = "\n".join(tmp)
         #print("{}: {} - {}".format(index, "----", callnumber))
         tags = "{}\n{}".format(title,callnumber)
@@ -116,12 +130,12 @@ def make_pdf(array,page_num,row,col):
     """
 
     for i in range(page_num):
-        filename = "BookTags-{:d}.pdf".format(i)
+        filename = "BookTags{}x{}_{:02d}.pdf".format(row,col,i)
         doc = SimpleDocTemplate(filename, pagesize=(A4[1], A4[0]),
                             topMargin=0.2 * cm,
                             bottomMargin=0.2 * cm,
-                            leftMargin=0.85 * cm,
-                            rightMargin=0.85 * cm,
+                            leftMargin=0.0 * cm,  #0.85
+                            rightMargin=0.0 * cm, #0.85
                             showBoundary=False
                             )
         tab = Table(array[i], col * [2.0 * cm], row * [2.0 * cm])
@@ -130,7 +144,7 @@ def make_pdf(array,page_num,row,col):
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
             ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
             ('INNERGRID', (0, 0), (-1, -1), 0.25, colors.black, None, (2, 2, 1)),
-            ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('FONTSIZE', (0, 0), (-1, -1), 11),   # Fontsize   1 point = 0.352 mm
             ('FONT', (0, 0), (-1, -1), 'cwTeXQHeiBd'),
             ('BOX', (0, 0), (-1, -1), 0.25, colors.black, None, (2, 2, 1))
         ]))
@@ -153,7 +167,7 @@ def format_tags(ele,row,col):
     page_num = (ele_num // (row * col)) + 1
     new_array = np.resize(ele, (page_num, row, col))
     new_list = new_array.tolist()
-    logging.info("type new_list : {}".format(type(new_list)))
+    #logging.info("type new_list : {}".format(type(new_list)))
     return (page_num,new_list)
 
 def cli():
@@ -161,7 +175,7 @@ def cli():
 
     :return:
     """
-    filename = "E:/_Documents/GitHub/PyCharm_Workspace/BookTags/tmp/bookshelf_callnumber_finish.csv"
+    filename = "E:/_Documents/GitHub/PyCharm_Workspace/BookTags/tmp/bookshelf_callnumber_307.csv"
 
     tags = get_df(filename)
 

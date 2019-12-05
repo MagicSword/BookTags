@@ -272,3 +272,5 @@
 2019-12-03 20:02:00,070 - INFO : Opening file from : ./marc/0003-9789863125501.marc
 2019-12-03 20:02:21,233 - INFO : Open file from : ./marc/0003-9789863125501.marc
 2019-12-03 22:25:00,189 - INFO : Open file from : ./marc/0001-9789864340804.marc
+2019-12-04 15:41:50,707 - INFO : Open file from : ./marc/0003-9789863125501.marc
+2019-12-04 15:41:50,732 - INFO : Open file from : ./marc/0005-9789570810783.marc
