@@ -1,5 +1,11 @@
 # Develogment log
 
+`python -m booktags` : start flaskapp
+or `set FLASK_APP=booktags.cli` then `flask run`
+* The name is imported, automatically detecting an app (app) or factory (create_app).
+
+
+
 
 # 20191206
 * get_link
@@ -15,3 +21,9 @@
     * get callnumber from nbin
 * simple_table_grid.py
     * generate A4 booktags
+    
+# 20191215
+* 1. [flask_navbar](https://github.com/zcyuefan/flask-navbar) : 新版的flask-nav
+
+
+    

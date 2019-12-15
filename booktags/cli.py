@@ -18,6 +18,7 @@
 import click
 from .flaskapp import create_app
 
+
 # --------------------------------------------------------- common routines
 
 
@@ -29,6 +30,7 @@ def cli(*args, **kwargs):
     click.echo("Hello, cli")
     click.echo("Start flask app")
     app = create_app()
+
     app.run(debug=True)
 
 

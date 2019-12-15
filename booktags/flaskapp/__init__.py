@@ -16,14 +16,30 @@
 #     path will be displayed.
 
 from flask import Flask
+from flask_bootstrap import Bootstrap
+from flask_moment import Moment
+
+#from .main.navbar import nav
 #from config import Config
 
 # --------------------------------------------------------- common routines
 
 def create_app():
+    # Initialize Flask instance
     app = Flask(__name__)
+    app.config['SECRET_KEY'] = 'devkeys'
+    # Initialize  Blueprint
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
+    # Initialize Bootstrap
+    Bootstrap(app)
+    moment  = Moment(app)
+
+    # Initialize Nav
+    # TODO: fix flask_navbar
+    #nav.init_app(app)
+
+    # return app
     return app
 
 
