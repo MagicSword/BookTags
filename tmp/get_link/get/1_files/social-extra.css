@@ -1,0 +1,339 @@
+﻿.saveShelf {
+    visibility: hidden;
+}
+
+a.btn_white {
+    color: #fff;
+}
+
+.media-list-bubble>.media>.media-body .media-text {
+    display: block;
+}
+
+.social_index {
+    position: relative;
+    z-index: 2;
+}
+
+.sub-row {
+    position: relative;
+    overflow: hidden;
+    margin: 10px 10px 10px 0;
+}
+
+.rm-file-input {
+    font-size: 20px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 80px;
+    margin: 0;
+    padding: 0;
+    cursor: pointer;
+    opacity: 0;
+}
+
+.social_index{
+	position: relative;
+	z-index: 2;
+}
+.action-share{
+	display: inline-block;
+}
+.book-list{
+    border:1px solid #ccc;
+    padding:10px;
+    margin-bottom: 10px;
+}
+.group_desc{
+    width: 100%;
+    background: #fcf8e3;
+    line-height: 30px;
+    padding: 10px;
+    margin-top:20px;
+}
+.group_title{
+    width:100%;
+    background: #4CAF50;
+    padding: 10px;
+    margin-top:20px;
+    color:#fff;
+    line-height: 30px;
+    border-top-right-radius: 5px;
+    border-top-left-radius: 5px;
+    /*-webkit-box-shadow: 0 0 1px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.3);*/
+    /*box-shadow: 0 0 1px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.3);*/
+}
+.group_text{
+    /*border: 1px solid #ccc;*/
+    /*border-top: 0px solid #ccc;*/
+    line-height: 30px;
+    background-color: #fff;
+    /*-webkit-box-shadow: 0 0 1px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.1);*/
+    /*box-shadow: 0 0 1px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.1);*/
+}
+.col-sm-4 .group_title,.col-sm-4 .group_text{
+    -webkit-box-shadow: 0 0 1px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+.group_content{
+    padding:10px;
+}
+.leader{
+    padding: 10px;
+    background-color: #f2f2f2;
+    text-align: center;
+}
+.group_footer{
+    line-height: 30px;
+    background-color: #f5f5f5;
+    text-align: right;
+    border-top: 1px solid #ddd;
+    padding: 5px;
+}
+.group_members{
+    padding:15px;
+}
+.group_avaatar img{
+    width: 40px;
+    height: 40px;
+}
+
+.user-avatar img{
+    border-radius: 50%;
+    overflow: hidden;
+    -webkit-box-shadow: 0 0 1px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+.sm-user-avatar{
+    margin-top: 15px;
+}
+@media(max-width: 991px){
+    .sm-user-avatar{
+      padding: 0px 5px 0px 5px;
+    }
+}
+.sm-user-avatar a{
+    width: 100%;
+    position: relative;
+    padding-bottom: 100%;
+    display: inline-block;
+}
+.sm-user-avatar img{
+    width:100%;
+    height: 100%;
+    position: absolute;
+    border-radius: 50%;
+    overflow: hidden;
+    -webkit-box-shadow: 0 0 1px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+a.add_discussion{
+    color:#fff;
+}
+.nav-customer{
+    padding: 0px;
+    margin: 0px;
+}
+.btn-li{
+    padding: 8px 0px;
+    border-bottom: 2px solid #ddd;
+    color: #999;
+    cursor: pointer;
+    transition: 0.3s ease;
+    -webkit-transition: 0.3s ease;
+    -moz-transition: 0.3s ease;
+    -ms-transition: 0.3s ease;
+    -o-transition: 0.3s ease;
+}
+.btn-li:hover:not(.btn-li-active){
+    border-bottom: 2px solid #666;
+    color: #666;
+}
+.btn-li-active{
+    border-bottom: 2px solid #4CAF50;
+    color: #3b9e40;
+}
+.li-padding{
+    padding: 8px;
+}
+.table-non-border > thead > tr > th,.table-non-border > tbody > tr > td{
+    border: 0px solid #fff;
+}
+.table-non-active{
+    display: none;
+}
+.group_list_switch{
+    overflow: hidden;
+    padding: 10px;
+    /*margin-top: 20px;*/
+    /*border: 1px solid #ccc;*/
+    /*-webkit-box-shadow: 0 0 1px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.1);*/
+    /*box-shadow: 0 0 1px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.1);*/
+}
+.group_box{
+    margin-top: 20px;
+    background-color: #fff;
+    -webkit-box-shadow: 0 0 1px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+.group_review,.group_discussion{
+    display: none;
+}
+.group_discussion{
+    margin-bottom: 40px;
+    overflow: hidden;
+}
+.overflowHidden{
+    overflow: hidden;
+}
+.no-border,.resp-tab-content.resp-tab-content-active.no-border{
+    border: 0px solid #fff;
+}
+.group-see-more{
+    color: #4CAF50;
+    text-decoration: none;
+}
+.group-see-more:hover{
+    text-decoration: underline;
+}
+.group_avatar{
+    margin: 10px 0px;
+}
+.group-discussion-title{
+    overflow: hidden;
+    border-bottom: 2px solid #ddd;
+    margin-bottom: 10px;
+    width: 100%;
+}
+.group-discussion-list{
+    padding: 5px 0px;
+    overflow: hidden;
+}
+[data-show='none']{
+    display: none;
+}
+[data-show='show']{
+    display: block;
+}
+.group-add-discussion{
+    padding: 10px 0px;
+    color: #4CAF50;
+}
+.group_padding{
+    padding-bottom: 100%;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+}
+.group_padding a{
+    position: absolute;
+    top: 0px;
+}
+
+.book-info-btn .wish-ebook-btn .btn-wish-ebook {
+  display: block;
+  padding: 4px 12px;
+  border: 1px solid #666;
+  color: #666;
+  font-size: 13px;
+  line-height: 20px;
+  border-radius: 4px;
+  background-color: #fff;
+  width:120px;
+  margin:5px auto;
+  text-decoration: none;
+}
+.book-info-btn .wish-ebook-btn .btn-wish-ebook:before {
+  content: " 想要電子書";
+  font-family: FontAwesome;
+}
+.book-info-btn .wish-ebook-btn .btn-wish-ebook:hover {
+  color: #ec6d71;
+  border-color: #ec6d71;
+  text-decoration: none;
+}
+.book-info-btn .wish-ebook-btn .btn-wish-ebook.active {
+  color: #ec6d71;
+  border-color: #ec6d71;
+}
+.book-info-btn .wish-ebook-btn .btn-wish-ebook.active:hover {
+  color: #666;
+  border-color: #666;
+}
+.book-info-btn .wish-ebook-btn .btn-wish-ebook.active:hover:before {
+  content: " 取消電子書";
+}
+.book-info-btn .wish-ebook-btn .btn-wish-ebook.active {
+  color: #ec6d71;
+  border-color: #ec6d71;
+}
+.book-info-btn .wish-ebook-btn .btn-wish-ebook.active:hover{
+  color: #666;
+  border-color: #666;
+}
+
+.interactive-list .quote_image,.book-crossed .quote_image{
+    max-height: 120px;
+}
+.quoteText .quote_image, .content-view .quote_image{
+    max-height: 100px;
+}
+.caption.booklist_item_like .vote_item{
+    display: inline-block;
+    padding: 4px 12px;
+    border: 1px solid #666;
+    color: #666;
+    font-size: 13px;
+    line-height: 20px;
+    border-radius: 4px;
+    text-decoration: none;
+}
+.caption.booklist_item_like .vote_item:before{
+    content: "\f164 讚";
+    font-family: FontAwesome;
+}
+.caption.booklist_item_like .active.vote_item,.caption.booklist_item_like .vote_item:hover{
+    color: #ec6d71;
+    border-color: #ec6d71;
+}
+.caption.booklist_item_like .active.vote_item:hover{
+    color: #666;
+    border-color: #666;
+}
+.caption.booklist_item_like .active.vote_item:hover:before{
+    content: "\f164 取消";
+    font-family: FontAwesome;
+}
+.booklist_vote.vote_num:before{
+    content: "\f164";
+    font-family: FontAwesome;
+}
+/*.wishlist_list .caption h5 a {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: #333;
+}*/
+/*.wishlist_list .book-cover a img{
+    height: 150px;
+}*/
+/*.wishlist_view{
+    width: 128px;
+    float: left;
+    margin: 12px 5px;
+}*/
+/*.wishlist_btn a {
+    display: inline-block;
+    padding: 4px 12px;
+    border: 1px solid #666;
+    color: #666;
+    font-size: 13px;
+    line-height: 20px;
+    border-radius: 4px;
+}*/
+/*.wishlist_btn a.active {
+    color: #ea6666;
+    border-color: #ea6666;
+}*/

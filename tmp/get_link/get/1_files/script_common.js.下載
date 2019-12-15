@@ -1,0 +1,428 @@
+(function(){
+    if (/^http:\/\/(.+\.)?readmoo\.com\//.test(window.location.href)) {
+        window.location.href = "https:" + window.location.href.substring(window.location.protocol.length);
+    }
+
+    $(document)
+        .ready(function() {
+            $.books = function(x) {};
+            $.member = function(x) {};
+            $.member.follow = function(x) {};
+
+            $.growl = function(info, time, type, element) {
+                var notify = $.notify({
+                    message: info,
+                }, {
+                    element: element ? element : 'body',
+                    position: null,
+                    type: type, //info,success,danger,warning
+                    allow_dismiss: true,
+                    newest_on_top: false,
+                    placement: {
+                        from: "top",
+                        align: "right"
+                    },
+                    offset: 20,
+                    spacing: 10,
+                    z_index: 1031,
+                    delay: time,
+                    animate: {
+                        enter: 'animated fadeInDown',
+                        exit: 'animated fadeOutUp'
+                    },
+                    template: '<div data-notify="container" class="col-xs-11 col-sm-3 alert alert-{0}" role="alert">' +
+                                '<button type="button" aria-hidden="true" class="close" data-notify="dismiss">×</button>' +
+                                '<span data-notify="icon"></span> ' +
+                                '<span data-notify="title">{1}</span> ' +
+                                '<span data-notify="message">{2}</span>' +
+                                '<a href="{3}" target="{4}" data-notify="url"></a>' +
+                            '</div>'
+                });
+            };
+
+            $.alertModal = function(x, y, z) {
+                var footer = '';
+                if (z) {
+                    footer = '<div class="modal-footer"></div>';
+                }
+
+                if ($('#alertModal').length === 0) {
+                    $('body').append('<div class="modal fade" id="alertModal" ><div class="modal-dialog"><div class="modal-content"><div class="modal-header"></div><div class="modal-body"></div>' + footer + '</div></div></div>');
+                } else {
+                    $('#alertModal').html('<div class="modal-dialog"><div class="modal-content"><div class="modal-header"></div><div class="modal-body"></div>' + footer + '</div></div>');
+                }
+
+                if (!x) {
+                    x = '';
+                }
+
+                $('#alertModal .modal-header').html('<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button><h4 class="modal-title">' + x + '</h4>');
+                $('#alertModal .modal-body').html(y);
+
+                (z) && $('#alertModal .modal-footer').html(z);
+
+                $('#alertModal').modal({
+                    keyboard: false
+                });
+            };
+
+            $.alertModal.hide = function(x) {
+                $('#alertModal').modal('hide');
+            };
+
+            $.member.follow = function(that, id, callback) {
+                var url;
+                id = that.attr('data-id');
+                var followed = that.attr('data-followed');
+                var $operator_type = $('.profile-operator').attr('data-type');
+                var $profile_followings_el = $('#followings_count');
+                var $profile_followings_count = $profile_followings_el.text();
+                var $user_follower_count_el = that.siblings('p').find('.user_follower_count');
+                var $user_follower_count = $user_follower_count_el.text();
+                url = (followed == 1) ?
+                    STORE_URL + 'mooer/subscription/remove/' + id :
+                    STORE_URL + 'mooer/subscription/add/' + id;
+                $.ajax({
+                        url: url,
+                        type: 'post',
+                        xhrFields: {
+                            withCredentials: true
+                        },
+                        dataType: 'json'
+                    })
+                    .done(function(data) {
+                        if (callback) {
+                            callback(data);
+                        } else {
+                            if (data.status == 'ok') {
+                                if (followed == 1) {
+                                    $profile_followings_count--;
+                                    $user_follower_count--;
+                                    that.attr('data-followed', 0);
+                                    that.attr('title', '追蹤此會員');
+                                    $.alertModal('追蹤', '已取消追蹤此會員');
+                                    $(".follow_text_" + id).html("追蹤");
+                                    $(".follow_icon_" + id).removeClass('sl-user-unfollow').addClass('sl-user-follow');
+                                } else {
+                                    $profile_followings_count++;
+                                    $user_follower_count++;
+                                    that.attr('data-followed', 1);
+                                    that.attr('title', '取消追蹤此會員');
+                                    $.alertModal('追蹤', '已追蹤此會員');
+                                    $(".follow_text_" + id).html("取消追蹤");
+                                    $(".follow_icon_" + id).removeClass('sl-user-follow').addClass('sl-user-unfollow');
+                                }
+                                if ($operator_type === 'me') {
+                                    $profile_followings_el.text($profile_followings_count)
+                                }
+                                $user_follower_count_el.text($user_follower_count);
+                            } else {
+                                $.alertModal('追蹤', data.desc);
+                            }
+                        }
+                    })
+                    .fail(function(jqXHR) {
+
+                    });
+            };
+
+            $.sharelink = function(x, y) {
+                switch (x) {
+                    case 'google':
+                    case 'g+':
+                        window.open('https://plus.google.com/share?url=' + encodeURI(y), '_blank');
+                        break;
+                    case 'facebook':
+                    case 'fb':
+                        window.open('http://www.facebook.com/sharer/sharer.php?u=' + encodeURI(y), '_blank');
+                        break;
+                    case 'twitter':
+                        window.open('https://twitter.com/share?url=' + encodeURI(y), '_blank');
+                        break;
+                    default:
+                        break;
+                }
+            };
+        })
+
+        .on('click', '.follow_btn', function(event) {
+            event.preventDefault();
+            var that = $(this);
+            $.member.follow(that);
+        })
+
+        //follow社群
+        .on('click', '.follow_group', function(event) {
+            event.preventDefault();
+            var that = $(this);
+            var group_id = that.attr('data-group_id');
+            var followed = that.attr('data-followed');
+            var url = (followed == 1) ?
+                SOCIAL_URL + 'group/follow_group/' + group_id + '/unfollow' :
+                SOCIAL_URL + 'group/follow_group/' + group_id + '/follow';
+            $.ajax({
+                url: url,
+                type: 'post',
+                dataType: 'json',
+                xhrFields: {
+                    withCredentials: true
+                },
+                success: function(data) {
+                    if (data.status == 'ok') {
+                        if (followed == 1) {
+                            that.attr('data-followed', 0);
+                            that.attr('title', '加入');
+                            $.alertModal('社團', '已退出此社團', '<button class="btn btnpink" data-dismiss="modal">確定</button>');
+                        } else {
+                            that.attr('data-followed', 1);
+                            that.attr('title', '退出');
+                            $.alertModal('社團', '已加入此社團', '<button class="btn btnpink" data-dismiss="modal">確定</button>');
+                            if(that.attr('data-reload')){
+                                location.reload();
+                            }
+                        }
+                    } else if (data.status == 'error_login') {
+                        $.alertModal('提示', data.desc, '<a href="' + data.url + '" class="btn btnpink">登入</a>');
+                    } else {
+                        $.alertModal('提示', data.desc, '<button class="btn btnpink" data-dismiss="modal">確定</button>');
+                    }
+                }
+            });
+        })
+        //試讀
+        .on('click', '.preview', function(event) {
+            event.preventDefault();
+            var rid = this.dataset.readmoo_id;
+            var previewUrl = event.target.href;
+
+            $.ajax({
+                url: STORE_URL + 'api/Statistics/preview_log/'+ rid,
+                type: 'POST',
+                dataType: 'json',
+                xhrFields: {withCredentials: true},
+                crossDomain: true
+            })
+            .done(function(msg){
+                if (msg.status == 'ok') {
+                    var popup = window.open(msg.reader_url, '_blank');
+                    var title = msg.title;
+                    var url = previewUrl;
+                    dataLayer.push({
+                        'event': '點擊試讀按鈕',
+                        'category': '開始閱讀',
+                        'action': '點擊試讀按鈕',
+                        'label': title
+                    });
+                    popupBlockerChecker.check(popup, url, title);
+                } else if (msg.status == 'error_18x') {
+                    $.alertModal(
+                        '預覽書籍', '18禁書籍需先登入後才能觀看！',
+                        '<a href="' + previewUrl + '" class="btn btn-danger">確認</a>'
+                    );
+                } else if(msg.status == '18x'){
+                    $.alertModal(
+                        '敬告啓示', '本網站依台灣網站內容分級規定處理，未成年者請勿瀏覽與購買限制級商品。（未成年之判定以當地國家法律規定之成年年齡為準）',
+                        '<a href="#" class="btn btn-danger" data-dismiss="modal" aria-hidden="true">我未滿18歲</a>'+
+                        '<a href="#" id="view_book" class="btn btn-success">我已滿18歲</a>'
+                    );
+                    $('#view_book').on('click', function(event){
+                        event.preventDefault();
+                        var url = previewUrl;
+                        $.alertModal.hide();
+                        var popup = window.open(url, '_blank');
+                        popupBlockerChecker.check(popup, url, title);
+                    });
+                }else {
+                    alert(msg.desc);
+                }
+            })
+            .fail(function(data) {
+
+            });
+        })
+        //分享書 蒐藏書評
+        .on('click', '.like_review', function(event) {
+            event.preventDefault();
+            var that = $(this);
+            var id = this.dataset.id;
+            var liked = this.dataset.liked;
+            var url = SOCIAL_URL + 'review_admin/receiver_favorite';
+
+            $.ajax({
+                url: url,
+                type: 'post',
+                data: {id: id, liked: liked},
+                dataType: 'json',
+                xhrFields: { withCredentials: true},
+            })
+            .done(function(data) {
+                if (data.status === 200) {
+                    if (liked === '1') {
+                        that.attr('data-liked', 0);
+                        that.attr('title', '蒐藏此則書評');
+                        $.alertModal('書評', '已取消蒐藏此則書評');
+                        $('#review_text_' + id).html("蒐藏");
+                        $('#review_icon_' + id).removeClass('fa-minus').addClass('fa-plus');
+                    } else {
+                        that.attr('data-liked', 1);
+                        that.attr('title', '取消蒐藏此則書評');
+                        $.alertModal('書評', '已蒐藏此則書評','<a href="'+ SOCIAL_URL +'me/review/favorite/index" class="btn btn-danger">前往蒐藏頁面</a>');
+                        $('#review_text_' + id).html("取消蒐藏");
+                        $('#review_icon_' + id).removeClass('fa-plus').addClass('fa-minus');
+                    }
+                } else {
+                    $.alertModal('錯誤訊息', data.desc);
+                }
+            })
+            .fail(function(jqXHR){
+                $.alertModal('發生錯誤', '伺服器錯誤請稍候再試');
+            });
+        })
+        //分享書 蒐藏書單
+        .on('click', '.operate_like', function() {
+            $this = $(this);
+            var $list_id = $this.attr('data-id');
+            var $type = $this.attr('data-type');
+            var $request = $.ajax({
+                url: SOCIAL_URL + 'booklist/receiver_like',
+                dataType: 'json',
+                data: {'list_id': $list_id, 'type': $type},
+                xhrFields: { withCredentials: true},
+                type: 'post'
+            });
+
+            $request.done(function(data) {
+                if (data.status === 'ok') {
+                    switch ($type) {
+                        case 'add':
+                            $.alertModal('訊息', '已蒐藏此書單', '<a href="'+ SOCIAL_URL +'me/booklist/attention/index/1" class="btn btn-danger">前往蒐藏頁面</a>');
+                            $this.attr('data-type', 'del').removeClass('btnfollow').addClass('btnunfollow btnred').text('取消蒐藏');
+                        break;
+                        case 'del':
+                            $.alertModal('訊息', '已取消蒐藏此書單');
+                            $this.attr('data-type', 'add').removeClass('btnunfollow btnred').addClass('btnfollow btngreen').text('蒐藏');
+                        break;
+                        case 'del_attention':
+                            $this.parents('.lists-display').remove();
+                            var $list_entry_div = $('.list-entry > li');
+                            var $data_page = $('.list-entry').attr('data-page');
+                            var $data_page_total = $('.list-entry').attr('data-page-total');
+                            if ($list_entry_div.length === 5 && $data_page_total > 1) {
+                                $('.list-entry').attr('data-page-total', $data_page_total - 1);
+                                pageClick($data_page);
+                            } else if ($list_entry_div.length === 0) {
+                                if ($data_page > 1) {
+                                    $data_page--;
+                                    pageClick($data_page);
+                                } else {
+                                    $('.rm-pagination').hide();
+                                }
+                            }
+                        break;
+                        default:
+                            return 0;
+                    }
+                } else if (data.status === 'error_login') {
+                    $.alertModal('警告', '請先登入', '<a href="' + data.url + '" class="btn btngreen">登入</a>');
+                } else {
+                    $this.attr('data-type', '').find('a').removeClass('btnfollow').addClass('btnred').text('錯誤');
+                }
+            });
+        })
+
+})();
+//寄mail
+var sendMail = function(user, id){
+    var path = MEMBER_URL + 'mail/mail_data';
+    if (user) {
+        path = path + '/' + user;
+    }
+    if (id) {
+        path = path + '/' + id;
+    }
+    $.ajax({
+        url: path,
+        dataType: 'json',
+        xhrFields: {withCredentials: true},
+    })
+    .done(function(data) {
+        if (data.hasOwnProperty('status') && data.status === 'ok') {
+            var discussionTemplate = Handlebars.compile($('#mail-template').html());
+            $('#new_mail').html(discussionTemplate(data));
+            $('#mail-form').bootstrapValidator(data.rule);
+            $('#mail-form').on('success.form.bv', function(e) {
+                e.preventDefault();
+
+                $('#send_mail').attr('disabled','disabled');
+                var formElement = document.getElementById('mail-form');
+                var formData = new FormData(formElement);
+                var receiver = $('#receiver').tagsinput('items');
+                if (receiver.length == 0) {
+                    alert('請填寫至少一位收件者');
+                    return false;
+                }
+                var receiver_ids = [];
+                for (var sn in receiver) {
+                    receiver_ids[sn] = receiver[sn].value;
+                }
+                formData.append('receiver',receiver_ids);
+
+                $.ajax({
+                    url: MEMBER_URL + 'mail/form_validation',
+                    data: formData,
+                    dataType: 'json',
+                    type: 'POST',
+                    processData: false,
+                    contentType: false,
+                    xhrFields: {withCredentials: true},
+                })
+                .done(function(data) {
+                    $('#send_mail').removeAttr('disabled');
+                    $('#new_mail').modal('hide');
+                    $.alertModal('提示', data.desc, '<button class="btn btnpink" data-dismiss="modal">確定</button>');
+                })
+            });
+
+            $('#new_mail').modal('show');
+            $('#mail_content').markdown();
+
+            var friends = new Bloodhound({
+                datumTokenizer: Bloodhound.tokenizers.obj.whitespace('text'),
+                queryTokenizer: Bloodhound.tokenizers.whitespace,
+                remote: {
+                  url: MEMBER_URL + 'mail/search_friend/%QUERY',
+                  xhrFields: {withCredentials: true},
+                  wildcard: '%QUERY',
+                  filter: function(list) {
+                    return $.map(list, function(data) {
+                      return { 'value': data.id, 'text': data.name };
+                    });
+                  }
+                }
+              });
+
+              friends.initialize();
+
+              $('#receiver').tagsinput({
+                itemValue: 'value',
+                itemText: 'text',
+                typeaheadjs: {
+                    name: 'friends',
+                    displayKey: 'text',
+                    source: friends.ttAdapter()
+                }
+              });
+              if (data.value) {
+                $('#receiver').tagsinput('add', {'value':data.value, 'text': data.text});
+              }
+        } else {
+
+        }
+    })
+    .fail(function(jqXHR){
+        // warning(jqXHR.responseText);
+    });
+}
+$('#new_mail').on('hidden.bs.modal', function() {
+    $('#mail-form').bootstrapValidator('resetForm', 'resetFormData', 'true');
+});

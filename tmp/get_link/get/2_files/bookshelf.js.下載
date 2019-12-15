@@ -1,0 +1,634 @@
+(function() {
+    var chalkboard = [];
+    var elt;
+    var pageType = '';
+    var App;
+    $window = $(window);
+
+    var initalSettingModal = function(data) {
+        if (! data) {
+            data = {'reading_status': 1, 'private': 0, 'memo_remaining': 200};
+        }
+
+        var stroage = JSON.parse(localStorage.getItem('user-tags'));
+        if (stroage) {
+            data.popular = stroage.slice(0, 10);
+        }
+
+        var bookSettingTemplate = Handlebars.compile($('#book-setting-template').html());
+        $('#setting-modal').html(bookSettingTemplate(data));
+
+        var dateTemplate = Handlebars.compile($('#book-memo-template').html());
+        $('#reading_memo_content').html(dateTemplate(data));
+
+        if (stroage) {
+            var tagnames = new Bloodhound({
+                datumTokenizer: Bloodhound.tokenizers.obj.whitespace('text'),
+                queryTokenizer: Bloodhound.tokenizers.whitespace,
+                local: $.map(stroage, function(tag) {
+                    return {value: tag.tagSn, text: tag.tagName};
+                })
+            });
+            tagnames.initialize();
+
+            elt = $('#tag-manager');
+            elt.tagsinput({
+                itemValue: 'value',
+                itemText: 'text',
+                typeaheadjs: {
+                    name: 'tagnames',
+                    displayKey: 'text',
+                    source: tagnames.ttAdapter()
+                }
+            });
+        }
+
+        var statusMap = ['to-read', 'currently-reading', 'finish-read', 'to-give-up', 'reference'];
+        var modalStatusClass = '.'+ statusMap[data.reading_status - 1];
+        $(modalStatusClass).addClass('active');
+        $(modalStatusClass).children().attr('checked', true);
+        data.status_title = $(modalStatusClass).text().trim();
+
+        var readingMap = ['reading-public', 'social-public', 'reading-private'];
+        var modalReadingClass = '.'+ readingMap[data.private];
+        $(modalReadingClass).addClass('active');
+        $(modalReadingClass).children().attr('checked', true);
+
+        if (data.hasOwnProperty('tags') && Object.keys(data.tags).length > 0) {
+            for (var sn in data.tags) {
+                elt.tagsinput('add', {'value': sn, 'text': data.tags[sn]});
+            }
+        }
+
+        initalDateInput(data.reading_status, data.status_title, data);
+
+        $('#modal-status label').on('click', function() {
+            var $status_value = $(this).find('input').val();
+            var $status_type = $(this).text();
+            initalDateInput($status_value, $status_type, data);
+        });
+    };
+
+    var initalDateInput = function(status_value, status_type, data) {
+        var status_title = status_type;
+        switch (status_value) {
+            case '2':
+                status_title = '開始閱讀';
+                var template_name = 'book-single-date-template';
+                break;
+            case '5':
+                status_title = '開始參考';
+                var template_name = 'book-single-date-template';
+                break;
+            case '4':
+            case '3':
+                var template_name = 'book-range-date-template';
+                break;
+            default:
+                break;
+        }
+        data.status_title = status_title.trim();
+
+        if (template_name) {
+            var dateTemplate = Handlebars.compile($('#' + template_name).html());
+            $('#reading_period').html(dateTemplate(data));
+            var datetime_config = {
+                format: 'YYYY-MM-DD',
+                keepOpen: true,
+                showClose: true,
+                showClear: true
+            };
+            $('.input-daterange').datetimepicker(datetime_config);
+        } else {
+            $('#reading_period').empty();
+        }
+    };
+
+    var periodsList = function() {
+        var $mid = $('#reading_periods_tab').attr('data-mid');
+        var param = {
+            mid: $mid
+        };
+        $.ajax({
+            url: SOCIAL_URL +'bookshelf/setting/get_periods',
+            data: $.param(param),
+            dataType: 'json',
+            type: 'POST'
+        })
+
+        .done(function(data) {
+            if (data.hasOwnProperty('status')) {
+                switch(data.status) {
+                    case 'ok':
+                        var bookPeriodsTemplate = Handlebars.compile($('#book-periods-template').html());
+                        Handlebars.registerHelper('with', function(context) {
+                            switch (context) {
+                                case '2':
+                                    var label_type = 'label-primary';
+                                    break;
+                                case '3':
+                                case '5':
+                                    var label_type = 'label-success';
+                                    break;
+                                case '4':
+                                    var label_type = 'label-danger';
+                                    break;
+                                default:
+                                    break;
+                            }
+                            return label_type;
+                        });
+
+                        Handlebars.registerHelper('if_range', function(context, options) {
+                            switch (context) {
+                                case '2':
+                                case '5':
+                                    return options.inverse(this);
+                                    break;
+
+                                case '4':
+                                case '3':
+                                    return options.fn(this);
+                                    break;
+
+                                default:
+                                    break;
+                            }
+                        });
+
+                        $('#reading_periods_content').html(bookPeriodsTemplate(data));
+                        $('.input-daterange').datetimepicker({
+                            format: 'YYYY-MM-DD',
+                            keepOpen: true,
+                            showClose: true,
+                            showClear: true,
+                            defaultDate: moment()
+                        });
+
+                        $('.deletePeriod').on('click', function() {
+                            var $setPeriodDelete = $('#confrimPeriodDelete');
+                            var $periodId = $(this).attr('data-id');
+                            $setPeriodDelete.attr('data-id', $periodId);
+                        });
+
+                        $('#cancelPeriodDelete').on('click', function() {
+                            $('#periodConfrim').modal('hide');
+                        });
+                        break;
+
+                    case 'error_login':
+                        $.alertModal('警告', '請先登入', '<a href="' + data.url + '" class="btn btnpink">登入</a>');
+                        break;
+
+                    default:
+                        $.alertModal('錯誤', '很抱歉出現錯誤，請重新載入');
+                        break;
+                }
+            }
+        })
+
+        .fail(function(jqXHR){
+            $.alertModal('錯誤', '很抱歉出現錯誤，請重新載入');
+        });
+    };
+
+    var display = function() {
+        var qs = document.querySelector('.batch-list');
+        if (qs.dataset.status !== '') {
+            $('#reading_status').val(qs.dataset.status);
+        }
+
+        if (qs.dataset.sorting !== '') {
+            $('#sorting').val(qs.dataset.sorting);
+        } else {
+            $('#sorting').val(0);
+        }
+
+        $('.bookshelf-name').html(qs.dataset.shelfName);
+        $('.bookshelf-number').html('('+ qs.dataset.total +')');
+        if (qs.dataset.name === 'custom') {
+            $('#status-group').css('display', 'block');
+        } else {
+            $('#status-group').css('display', 'none');
+        }
+
+        $('#batch-edit').prop('checked', false);
+        $(window).trigger('batchModeOff');
+
+        $('img.lazy').lazyload();
+    };
+
+    var initalPager = function() {
+        var qs = document.querySelector('.batch-list');
+        pageType = qs.dataset.type;
+        (qs.dataset.keyword) && $('#bookshelfKeyword').val(qs.dataset.keyword);
+
+        if (qs.dataset.pageTotal > 0) {
+            $('#pagination').css('display', 'block');
+        } else {
+            $('#pagination').css('display', 'none');
+        }
+
+        $('#pagination').pager({
+            pagenumber: qs.dataset.page,
+            pagecount: qs.dataset.pageTotal,
+            buttonClickCallback: pageClick
+        });
+    };
+
+    var pageClick = function(data) {
+        var page = (data === 'filter') ? 1 : data;
+        var $key = $('#bookshelfKeyword').val();
+        var $filter = $('#reading_status').val();
+        var $sort = $('#sorting').val();
+
+        if ($filter !== '' || $key !== '' || $sort != 0) {
+            $.pjax.defaults.data = {};
+            $.pjax.defaults.data.status = $filter;
+            $.pjax.defaults.data.bookName = $key;
+            $.pjax.defaults.data.sorting = $sort;
+        } else {
+            $.pjax.defaults.data = null;
+        }
+
+        var path = (isNaN(page)) ? page : function(page) {
+            var segments = location.pathname.split('/');
+            var types = ['total', 'to-read', 'currently-reading', 'read',
+                'to-give-up', 'reference', 'custom', 'unclassifed', 'author', 'category'];
+            for (var set in types) {
+                var gate = segments.indexOf(types[set]);
+                if (gate != -1) {
+                    switch (types[set]) {
+                        case 'category':
+                        case 'author':
+                        case 'custom':
+                            segments[gate + 2] = page;
+                            break;
+                        default:
+                            segments[gate + 1] = page;
+                            break;
+                    }
+                    return segments.join('/');
+                } else {
+                    continue;
+                }
+            }
+        }(page);
+
+        $.pjax({
+            container: '#chalkboard',
+            fragment: '#chalkboard',
+            url: path,
+            timeout: 3000
+        });
+    };
+
+    var modalPolygon = function(modalForm) {
+        var address;
+        var param = $('#modify-modal').serializeArray();
+        switch (modalForm) {
+            case 'edit':
+                address = SOCIAL_URL +'bookshelf/validation/modify';
+
+                var tagsValue = {
+                    name: 'tags_value',
+                    value: JSON.stringify($('#tag-manager').tagsinput('items'))
+                };
+                param.push(tagsValue);
+                break;
+
+            case 'periods':
+                address = SOCIAL_URL +'bookshelf/validation/periods_modify';
+                break;
+
+            case 'trash':
+                address = SOCIAL_URL +'bookshelf/validation/trash';
+                break;
+
+            default:
+                break;
+        }
+
+        if (chalkboard.length > 0) {
+            var batchList = {
+                name: 'batchQuery',
+                value: chalkboard
+            };
+            param.push(batchList);
+
+            if (modalForm === 'edit') {
+                address = SOCIAL_URL +'bookshelf/validation/batch';
+            }
+        }
+
+        pageSpinner.show();
+
+        $.ajax({
+            url: address,
+            data: param,
+            dataType: 'json',
+            type: 'POST'
+        })
+
+        .done(function(data) {
+            if (data.hasOwnProperty('status')) {
+                pageSpinner.hide();
+                switch(data.status) {
+                    case 'ok':
+                        $(window).trigger('batchModeOff');
+                        $('#setting-modal').modal('hide');
+                        $.pjax.reload('#chalkboard');
+                        $.pjax.reload('#bookshelf-tabs');
+                        break;
+
+                    case 'error_login':
+                        $.alertModal('警告', '請先登入', '<a href="' + data.url + '" class="btn btnpink">登入</a>');
+                        break;
+
+                    default:
+                        $.alertModal('錯誤', '很抱歉出現錯誤，請重新載入');
+                        break;
+                }
+            }
+        })
+
+        .fail(function(data) {
+            pageSpinner.hide();
+            $.alertModal('錯誤', '很抱歉出現錯誤，請重新載入');
+        })
+    };
+
+    $(document)
+        .on('pjax:send', function() {
+            pageSpinner.show()
+        })
+
+        .on('pjax:complete', function() {
+            pageSpinner.hide()
+        })
+
+        .on('pjax:end', function() {
+            display();
+            initalPager();
+            starMarker();
+
+            if (pageType == 'me') {
+                App.init();
+            }
+        })
+
+        .on('pjax:timeout', function(event) {
+            event.preventDefault();
+        })
+
+        .on('click', '.sidebar-corner', function(event) {
+            event.preventDefault();
+            $('#bookshelfKeyword').val('');
+            $('#reading_status').val('');
+            $('#sorting').val(0);
+
+            pageClick(this.getAttribute('href'));
+
+            $(this).parent().parent().children().removeClass('active');
+            $(this).parent().addClass('active');
+        })
+
+        .on('click', '.batch-set', function(event) {
+            event.preventDefault();
+            initalSettingModal()
+            $('#setting-modal').modal('show');
+        })
+
+        .on('click', '.set-detail', function(event) {
+            event.preventDefault();
+            var param = {
+                socialId: this.dataset.mid
+            };
+            $.ajax({
+                url: SOCIAL_URL +'bookshelf/setting/get',
+                data: $.param(param),
+                dataType: 'json',
+                type: 'POST'
+            })
+
+            .done(function(data) {
+                if (data.hasOwnProperty('status')) {
+                    switch(data.status) {
+                        case 'ok':
+                            initalSettingModal(data);
+                            $('#setting-modal').modal('show');
+                            break;
+
+                        case 'error_login':
+                            $.alertModal('警告', '請先登入', '<a href="' + data.url + '" class="btn btnpink">登入</a>');
+                            break;
+
+                        default:
+                            $.alertModal('錯誤', '很抱歉出現錯誤，請重新載入');
+                            break;
+                    }
+                }
+            })
+
+            .fail(function(jqXHR){
+                $.alertModal('錯誤', '很抱歉出現錯誤，請重新載入');
+            });
+        })
+
+        .on('shown.bs.tab', '#main_tab', function(event) {
+            $('#modify-modal').attr('data-mode', 'edit');
+        })
+
+        .on('shown.bs.tab', '#reading_periods_tab', function(event) {
+            $('#modify-modal').attr('data-mode', 'periods');
+            periodsList();
+        })
+
+        .on('shown.bs.tab', '#reading_memo_tab', function(event) {
+            $('#modify-modal').attr('data-mode', 'edit');
+        })
+
+        .on('click', '.tag-used', function(event) {
+            event.preventDefault();
+            var sn = $(this).attr('data-value');
+            var name = $(this).text();
+            elt.tagsinput('add', {'value': sn, 'text': name});
+        })
+
+        .on('keypress', '.bootstrap-tagsinput .tt-input', function(event) {
+            if (event.which == 13) {
+                event.preventDefault();
+                var names = $(this).val();
+                if (names) {
+                    elt.tagsinput('add', {'value': names, 'text': names});
+                    $(this).val('');
+                }
+            }
+        })
+
+        .on('submit', '#modify-modal', function(event) {
+            event.preventDefault();
+            var $mode = $('#modify-modal').attr('data-mode');
+            modalPolygon($mode);
+        })
+
+        .on('click', '.btntrash', function(event) {
+            event.preventDefault();
+            if (confirm('確定要刪除書籍？') === true) {
+                modalPolygon('trash');
+            }
+        })
+
+        .on('change', '#reading_status', function(event) {
+            event.preventDefault();
+            pageClick('filter');
+        })
+
+        .on('change', '#sorting', function(event) {
+            event.preventDefault();
+            pageClick('filter');
+        })
+
+        // .on('click', '#bookshelfSearch', function(event) {
+        //     event.preventDefault();
+        //     var $key = $('#bookshelfKeyword').val();
+        //     if ($key.length > 0) {
+        //         pageClick('filter');
+        //     }
+        // })
+
+        .on('click', '#confrimPeriodDelete', function(event) {
+            event.preventDefault();
+            var $periodId = $(this).attr('data-id');
+            var $mid = $('#reading_periods_tab').attr('data-mid');
+            var param = {
+                periodId: $periodId,
+                mid: $mid
+            };
+            $.ajax({
+                url: SOCIAL_URL +'bookshelf/validation/period_del',
+                data: $.param(param),
+                dataType: 'json',
+                type: 'POST',
+            }).done(function(data) {
+                if (data.hasOwnProperty('status')) {
+                    switch(data.status) {
+                        case 'ok':
+                            $('#periodConfrim').modal('hide');
+                            periodsList();
+                            break;
+                        case 'error_login':
+                            $.alertModal('警告', '請先登入', '<a href="' + data.url + '" class="btn btnpink">登入</a>');
+                            break;
+                        default:
+                            break;
+                    }
+                } else {
+                    $.alertModal('錯誤', '很抱歉出現錯誤，請重新載入');
+                }
+            }).fail(function(jqXHR){
+                $.alertModal('錯誤', '很抱歉出現錯誤，請重新載入');
+            });
+        })
+
+        .on('keyup', '.book-memo', function() {
+            var memoTextMax = 200;
+            var memoLength = $('.book-memo').val().length;
+            var memoRemaining = memoTextMax - memoLength;
+
+            $('#word-counter').html(memoRemaining);
+        })
+
+        .ready(function() {
+            App = {
+                batchMode: false,
+                $masks: null,
+                $masksChecked: $('.mask.checked'),
+                $selectBtn: $('.select-btn'),
+                $selectAll: $('#batch-selectall'),
+                $selectCount: $('#select-count'),
+                $batchCheckbox: $('#batch-edit'),
+                updateCount: function(count) {
+                    this.$selectCount.text('(' + count + ')');
+                },
+                countSelect: function() {
+                    var count = $('.mask.checked').length;
+                    this.updateCount(count);
+
+                    var all = this.$masks.length;
+                    if (count === 0){
+                        this.$selectAll[0].indeterminate = false;
+                        this.$selectAll.prop('checked', false);
+                    } else if(count < all) {
+                        this.$selectAll[0].indeterminate = true;
+                    } else {
+                        this.$selectAll[0].indeterminate = false;
+                        this.$selectAll.prop('checked', true);
+                    }
+
+                    if (count > 0) {
+                        $('.batch-set').attr('disabled', false);
+                        $('.batch-set').prop('disabled', false);
+                        chalkboard = [];
+                        $('.mask.checked').each(function() {
+                            $mid = $(this).attr('data-mid');
+                            chalkboard.push($mid);
+                        });
+                    } else {
+                        $('.batch-set').attr('disabled', true);
+                        $('.batch-set').prop('disabled', true);
+                    }
+                },
+
+                init: function() {
+                    chalkboard = [];
+                    $('.batch-set').attr('disabled', true);
+                    $('.batch-set').prop('disabled', true);
+                    this.$masks = $('.mask');
+                    this.$selectAll.on('click', function(e) {
+                        if ($(e.currentTarget).is(':checked')) {
+                            this.$masks.addClass('checked');
+                            this.countSelect();
+                        } else {
+                            this.$masks.removeClass('checked');
+                            this.countSelect();
+                        }
+                    }.bind(this));
+
+                    this.$batchCheckbox.on('click', function(e) {
+                        batchMode = $(e.currentTarget).is(':checked');
+                        if (batchMode) {
+                            $window.trigger('batchModeOn');
+                        } else {
+                            $window.trigger('batchModeOff');
+                        }
+                    });
+
+                    $window.on('batchModeOn', function() {
+                        $('.batch-list').addClass('batch-mode');
+                        $('.batch-bar').removeClass('hide');
+                    }.bind(this));
+
+                    $window.on('batchModeOff', function() {
+                        $('.batch-list').removeClass('batch-mode');
+                        $('.batch-bar').addClass('hide');
+                        $('.mask').removeClass('checked');
+                        this.countSelect();
+                        this.$selectAll.attr('checked', false);
+                        this.$batchCheckbox.prop('checked', false);
+                    }.bind(this));
+
+                    $('.mask').on('click', function(e) {
+                        $(e.currentTarget).toggleClass('checked');
+                        this.countSelect();
+                    }.bind(this));
+                }
+            };
+            display();
+            initalPager();
+
+            if (pageType === 'me') {
+                App.init();
+            }
+        });
+})();

@@ -1,0 +1,110 @@
+	var url_btn = function(){
+        var segments = location.pathname.split('/');
+        if (segments.indexOf('discussion') != -1) {
+            $('.quote_btn').css('display','none');
+            $('.review_btn').css('display','none');
+            $('.discussion_btn').css('display','block');
+        }else if(segments.indexOf('quote') != -1){
+            $('.quote_btn').css('display','block');
+            $('.review_btn').css('display','none');
+            $('.discussion_btn').css('display','none');
+        }else{
+            $('.quote_btn').css('display','none');
+            $('.review_btn').css('display','block');
+            $('.discussion_btn').css('display','none');
+        }
+    }
+
+
+    $(document).ready(function () {
+        url_btn();
+        initalPager();
+        
+    });
+
+    //劃線、書評、討論區分頁
+    var initalPager = function(){
+        var qs = document.querySelector('.book-discussion');
+        if (qs.dataset.pageTotal>0) {
+            $('#pagination').css('display','block');
+        }else{
+            $('#pagination').css('display','none');
+        }
+        $('#pagination').pager({
+            pagenumber: qs.dataset.page,
+            pagecount: qs.dataset.pageTotal,
+            buttonClickCallback: pageClick
+        });
+    };
+
+    var pageClick = function(data) {
+        var page = (data.hasOwnProperty('currentTarget')) ? 1 : data;
+        var path = function(page){
+            var segments = location.pathname.split('/');
+            var book = segments.indexOf('book');
+            var types = ['discussion','quote','review'];
+            for (var set in types) {
+                var gate = segments.indexOf(types[set]);
+                if (gate != -1) {
+                    segments[gate + 1] = page;
+                    return segments.join('/');
+                } else {
+                    continue;
+                }
+            }
+            if(book != -1){
+                segments[book + 2] = 'review';
+                segments[book + 3] = page;
+                return segments.join('/');
+            }
+        }(page);
+
+        $.pjax({
+            scrollTo: false,
+            container: '#chalkboard',
+            fragment: '#chalkboard',
+            url: path,
+            timeout: 3000
+        });
+    };
+
+    $(document).on('pjax:end', function() {
+        initalPager();
+    });
+
+    $(document).on('pjax:timeout', function(event) {
+        event.preventDefault();
+    });
+    
+    //tab動作
+    $(document).on('click', '.resp-tab-item>a', function(event) {
+        event.preventDefault();
+        $.pjax({
+            scrollTo: false,
+            container: '#chalkboard',
+            fragment: '#chalkboard',
+            url: $(this).attr('href'),
+            timeout: 3000
+        });
+        url_btn();
+        $('.resp-tab-active').removeClass('resp-tab-active');
+        $(this).parent().addClass('resp-tab-active');
+    });
+
+    //新增討論相關動作
+    $(document).on('click', '#new-discuss', function(event) {
+        event.preventDefault();
+        var that = this;
+        $.ajax({
+            url: STORE_URL + 'cart/login',
+            dataType: 'json',
+            xhrFields: {withCredentials: true},
+        })
+        .done(function(data) {
+            if(data.status == 'error_login'){
+                $.alertModal('提示','請先登入','<a href="' + data.url + '" class="btn btnpink">登入</a>');
+            }else{
+                discussionProcess(that.dataset.id,'book');
+            }
+        })
+    })

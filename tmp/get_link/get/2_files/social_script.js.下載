@@ -1,0 +1,730 @@
+var gate = -1;
+
+//新增回應
+var addComment = function(type, callback){
+    var id = $('#new_comment').attr('data-id');
+    var comment = $('#comment').val();
+    $.ajax({
+        url: SOCIAL_URL + 'discussion/new_comment',
+        data: {comment : comment , id : id , type : type},
+        type: 'post',
+        dataType: 'json',
+    })
+    .done(function(data){
+        if (data.status == 'ok') {
+            $('textarea').val('');
+            $('.count').html(data.comments);
+            if (callback && typeof(callback) == 'function') {
+                callback();
+            }
+        }else if(data.status == 'error_login'){
+            $.alertModal('提示', '請先登入', '<a href="' + data.url + '" class="btn btnpink">登入</a>');
+        }else{
+            $.alertModal('提示', data.desc, '<button class="btn btnpink" data-dismiss="modal">確定</button>');
+        }
+    })
+}
+
+//刪除回應
+var delComment = function(type, callback){
+    var id = $('#new_comment').attr('data-id');
+    var comment_id = tData.attr('data-id');
+    $.ajax({
+        url: SOCIAL_URL + 'discussion/del_comment',
+        data: {id : id , type : type, comment_id : comment_id},
+        type: 'post',
+        dataType: 'json',
+    })
+    .done(function(data){
+        if(data.status == 'error_login'){
+            $.alertModal('提示', '請先登入', '<a href="' + data.url + '" class="btn btnpink">登入</a>');
+        }else if (data.status == 'error') {
+            $.alertModal('提示', data.desc, '<button class="btn btn-danger" data-dismiss="modal">確定</button>');
+        }else{
+            $('.count').html(data.comments);
+            if (callback && typeof(callback) == 'function') {
+                callback();
+            }
+        }
+    })
+}
+
+var reviewProcess = function(mid) {
+    $.ajax({
+        url: SOCIAL_URL + 'review_admin/edit/' + mid,
+        dataType: 'json'
+    })
+    .done(function(data) {
+        switch (data.status) {
+            case 200:
+                break;
+            case 'error_login':
+                window.location.href = data.url;
+                break;
+            case 405:
+                $.alertModal('錯誤訊息', data.desc);
+                break;
+            default:
+                document.location.replace(SOCIAL_URL + 'me/review/recently-add/index');
+                break;
+        }
+
+        var reviewTemplate = Handlebars.compile($('#review-template').html());
+        $('#bookReview').html(reviewTemplate(data));
+        $('#review')
+            .bootstrapValidator(data.rule)
+            .on('success.form.bv', function(e) {
+                e.preventDefault();
+                $.ajax({
+                    url: SOCIAL_URL + 'review_admin/validation',
+                    data: $('#review').serialize(),
+                    dataType: 'json',
+                    type: 'POST'
+                })
+                .done(function(data) {
+                    if (data.hasOwnProperty('status')) {
+                        switch (data.status) {
+                            case 200:
+                                $('#bookReview').modal('hide');
+                                if (gate === -1) {
+                                    $.pjax.reload('#chalkboard');
+                                }
+                                break;
+                            case 300:
+                                document.location.replace(SOCIAL_URL + 'me/review/recently-add/detail/'+ data.wid +'/'+ data.id);
+                                break;
+                            case 405:
+                                $.alertModal('錯誤訊息', data.desc);
+                                break;
+                            case 'error_login':
+                                window.location.href = data.url;
+                                break;
+                            default:
+                                document.location.replace(SOCIAL_URL + 'me/review/recently-add/index');
+                                break;
+                        }
+                    } else {
+                        document.location.replace(SOCIAL_URL + 'me/review/recently-add/index');
+                    }
+                });
+            });
+        $('#reviewContent').markdown();
+        $('#bookReview').modal('show');
+        starMarker();
+    })
+    .fail(function(jqXHR){
+        // warning(jqXHR.responseText);
+    });
+};
+
+var starMarker = function() {
+    //個人星等評分
+    $('.my-rating-star').raty({
+        path: 'https://cdn.readmoo.com/images',
+        cancel: true,
+        score: function() {
+            return $(this).attr('data-score');
+        }
+    });
+
+    var avg_rating = $('.fixed-avg-star').attr('data-score');
+    $('.fixed-avg-star').raty({
+        path: 'https://cdn.readmoo.com/images',
+        readOnly: true,
+        score: function() {
+            return $(this).attr('data-score');
+        },
+        hints: ['平均分數為：'+avg_rating, '平均分數為：'+avg_rating, '平均分數為：'+avg_rating, '平均分數為：'+avg_rating, '平均分數為：'+avg_rating],
+        noRatedMsg: '尚無人評分，成為第一個評分者！',
+        target: '#avg-hint'
+    });
+    $('.owner-rating').raty({
+        path: 'https://cdn.readmoo.com/images',
+        readOnly: true,
+        score: function(){
+            return $(this).attr('data-score');
+        }
+    })
+};
+
+//新增討論相關動作
+var discussionProcess = function(id, type, sn) {
+    if (!sn) {
+        sn = 0;
+    }
+    $.ajax({
+        url: SOCIAL_URL + 'book/discuss_data/' + id + '/' + type + '/' + sn,
+        dataType: 'json'
+    })
+    .done(function(data) {
+        if (data.hasOwnProperty('status') && data.status === 'ok') {
+            var discussionTemplate = Handlebars.compile($('#discussion-template').html());
+            $('#discussion_new').html(discussionTemplate(data));
+            $('#discuss-form')
+                .bootstrapValidator(data.rule)
+                .on('success.form.bv', function(e) {
+                    e.preventDefault();
+                    $('#discuss_save').attr('disabled','disabled');
+                    $.ajax({
+                        url: SOCIAL_URL + 'book/form_validation/' + id + '/' + type,
+                        data: $('#discuss-form').serialize(),
+                        dataType: 'json',
+                        type: 'POST',
+                    })
+                    .done(function(data) {
+                        $('#discuss_save').removeAttr('disabled');
+                        if (data.hasOwnProperty('status') && data.status === 'ok') {
+                            $('#discussion_new').modal('hide');
+                            if (data.num && !data.url) {
+                                $('.discus_num').html(data.num);
+                                pageClick(1);
+                            }else if (!data.url) {
+                                discussion_pageClick(1);
+                            } else {
+                                window.location.href = data.url;
+                            }
+                        } else {
+                            $.alertModal('錯誤',data.desc);
+                        }
+                    })
+                    .fail(function(jqXHR){
+                        // warning(jqXHR.responseText);
+                    });
+                });
+            $('#discuss_content').markdown();
+            $('#discussion_new').modal('show');
+        } else {
+
+        }
+    })
+    .fail(function(jqXHR){
+        // warning(jqXHR.responseText);
+    });
+}
+$('#discussion_new').on('hidden.bs.modal', function() {
+    $('#discuss-form').bootstrapValidator('resetForm', 'resetFormData', 'true');
+});
+
+var ggReport = {
+    $el: null,
+    ggNum: null,
+    show: function(){
+        this.$el.fadeIn();
+        this.$el.find('.report').focus();
+        this.reset();
+        var that = this;
+        $(document).on('keyup', function(e){
+            if (e.keyCode === 27){
+                that.hide();
+            }
+        });
+    },
+    hide: function(){
+        this.reset();
+        this.$el.fadeOut();
+    },
+    reset: function(){
+        this.ggNum = 0;
+    },
+    submit: function(e){
+    },
+    init: function(){
+        $('body').append('<script type="text/javascript">var submitted=false;</script>');
+        var $div = $('<div>').addClass('gg-report');
+        this.$el = $div;
+        this.$el.html('<iframe id="hidden_iframe" name="hidden_iframe" onload="if(submitted){window.location.reload();}" style="display: none;"></iframe><form action="https://docs.google.com/a/ecrowdmedia.com/forms/d/1Rxld0Fq6IsiRR_Mk5zU_EAwhzMCU91q7T6sxDJJdk-E/formResponse" method="POST" id="ss-form" onsubmit="submitted=true;" target="hidden_iframe"><input type="text" name="entry.1757335305" value="" class="url" id="entry_1757335305" dir="auto" aria-label="URL  " title=""> <input type="text" name="entry.1435234129" value="" class="title" id="entry_1435234129" dir="auto" aria-label="網頁標題  " title=""> <input type="text" name="entry.614956516" value="" class="report" id="entry_614956516" dir="auto" aria-label="意見  " title="" placeholder="這頁有什麼問題？"> <input type="hidden" name="draftResponse" value="[,,&quot;-3228480583824971814&quot;] "> <input type="hidden" name="pageHistory" value="0"> <input type="hidden" name="fbzx" value="-3228480583824971814"> <input type="submit" name="submit" value="&#25552;&#20132;" id="ss-submit" class="jfk-button jfk-button-action "> </form>');
+        var $form = this.$el.find('form');
+        $form.find('.url').val(location.href);
+        $form.find('.title').val($('title').text());
+        $('body').append(this.$el);
+        var that = this;
+        $(document).on('keyup', function(e){
+            if (e.keyCode === 71 && e.altKey && e.ctrlKey){
+                that.ggNum += 1;
+                if (that.ggNum == 2){
+                    that.show();
+                }
+            }
+        });
+    }
+};
+
+var pageSpinner = {
+    $el: null,
+    show: function(){
+        this.reset();
+        this.$el.fadeIn();
+    },
+    hide: function(){
+        this.$el.fadeOut();
+    },
+    reset: function(){
+        this.$el.removeClass('done').removeClass('fail');
+    },
+    done: function(){
+        var that = this;
+        this.$el.addClass('done');
+        setTimeout(function(){
+            that.hide();
+        }, 300);
+    },
+    fail: function(){
+        var that = this;
+        this.$el.addClass('fail');
+        setTimeout(function(){
+            that.hide();
+        }, 300);
+    },
+    init: function(){
+        var pageSpinner = $('<div>').addClass('page-spinner');
+        this.$el = pageSpinner;
+        $('body').append(pageSpinner);
+    }
+};
+
+var changeStatus = function(manifestation_id, read_status, $statusBtn) {
+    // read_status = parseInt(read_status, 10);
+    if(read_status == 'del'){
+        var c = window.confirm('刪除書籍將會同時刪除您對本書的評分、劃線註記及書評等資料，確認要刪除？');
+        if (!c){
+            return false;
+        }
+    }
+    var $defToRead = $statusBtn.find('.def-to-read');
+    var x = $defToRead.children().detach();
+    $defToRead.text('Loading...');
+    var deferred = $.ajax({
+        url: SOCIAL_URL + 'book/status_change/' + manifestation_id,
+        data: {
+            read_status: read_status
+        },
+        dataType: 'json',
+        type: 'POST',
+        xhrFields: {
+            withCredentials: true
+        }
+    });
+
+    deferred.done(function(data) {
+        if (read_status == 'del') {
+            read_status = 0;
+        }
+        if (data.status == 'ok') {
+            $defToRead.empty().append(x);
+            $defToRead.find('span').text(data.read_status);
+            $defToRead.attr('data-status', read_status);
+
+        } else if (data.status == 'error_log') {
+            $.alertModal('警告', '請先登入', '<a href="' + data.url + '" class="btn btngreen">登入</a>');
+        } else {
+            $.alertModal('警告', data.desc, '<button class="btn btngreen" data-dismiss="modal">確定</button>');
+        }
+    });
+};
+
+
+
+
+
+$(document)
+    .on('click', '.btn-respond-show', function(event){
+        event.preventDefault();
+        var $commentForm = $(this).parent().siblings('.comment-form');
+
+        var visible = $commentForm.fadeToggle(300).is(':visible');
+        if (visible){
+            $commentForm.find('textarea').focus();
+        }else{
+            $commentForm.find('textarea').blur();
+        }
+
+    })
+    //蒐藏劃線
+    .on('click', '.like_quote', function(event) {
+        event.preventDefault();
+        var that = $(this);
+        var quote_id = that.attr('data-id');
+        var liked = that.attr('data-liked');
+        var url = (liked == 1) ?
+            SOCIAL_URL + 'quote_admin/like_quote/' + quote_id + '/unlike' :
+            SOCIAL_URL + 'quote_admin/like_quote/' + quote_id + '/like';
+        $.ajax({
+            url: url,
+            type: 'post',
+            dataType: 'json',
+            xhrFields: {
+                withCredentials: true
+            },
+            success: function(data) {
+                if (data.status == 'ok') {
+                    if (liked == 1) {
+                        that.attr('data-liked', 0);
+                        that.attr('title', '蒐藏此則劃線註記');
+                        $.alertModal('劃線註記', '已取消蒐藏此則劃線註記', '<button class="btn btncancel" data-dismiss="modal">確定</button>');
+                        that.html('蒐藏');
+                        that.removeClass('fa-minus').addClass('fa-plus');
+                    } else {
+                        that.attr('data-liked', 1);
+                        that.attr('title', '取消蒐藏此則劃線註記');
+                        $.alertModal('劃線註記', '已蒐藏此則劃線註記', '<a href="' + SOCIAL_URL + 'me/quote/like/index/1" class="btn btngreen">前往蒐藏頁面</a>');
+                        that.html('取消蒐藏');
+                        that.removeClass('fa-plus').addClass('fa-minus');
+                    }
+                } else if (data.status == 'error_login') {
+                    $.alertModal('警告', data.desc, '<a href="' + data.url + '" class="btn btngreen">登入</a>');
+                } else {
+                    $.alertModal('警告', data.desc, '<button class="btn btngreen" data-dismiss="modal">確定</button>');
+                }
+            }
+        });
+    })
+
+    .on('click', '.my-rating-star img', function(event) {
+        event.preventDefault();
+        var $this = $(this);
+        var $starContainer = $this.parent();
+        var socialId = $starContainer.data('mid');
+        var score = $starContainer.find('input[name="score"]').val();
+        var origin_score = $starContainer.attr('data-score');
+        if (origin_score == score) {
+            return false;
+        }
+
+        pageSpinner.show();
+        $.ajax({
+            url: SOCIAL_URL + 'book/rating_save/' + socialId,
+            data: {
+                score: score
+            },
+            dataType: 'json',
+            type: 'POST',
+            xhrFields: {
+                withCredentials: true
+            },
+            success: function(data) {
+                if (data.status == 'ok') {
+                    if (!score){
+                        score = 0;
+                    }
+                    $starContainer.attr('data-score', score);
+                    if (data.stars) {
+                        $('.avg_rating').css('display', 'block');
+                        $('.fixed-avg-star').raty('set', {
+                            score: data.stars
+                        });
+                        $('.fixed-avg-star').raty('set', {
+                            hints: [data.stars, data.stars, data.stars, data.stars, data.stars]
+                        });
+                        $('.avg_rating span').html('共 ' + data.rating + ' 人評分');
+                    }
+                    pageSpinner.done();
+                    dataLayer.push({
+                        'event': '送出評分',
+                        'category': '評分',
+                        'label': data.book_title,
+                        'action': score
+                    });
+                } else if (data.status == 'error_log') {
+                    $.alertModal('警告', '請先登入', '<a href="' + data.url + '" class="btn btngreen">登入</a>');
+                } else {
+                    $.alertModal('警告', data.desc, '<button class="btn btngreen" data-dismiss="modal">確定</button>');
+                }
+            }
+        })
+    })
+
+    .on('click', '.def-to-read', function(e) {
+        e.preventDefault();
+        var read_status = parseInt(this.dataset.status, 10);
+        var manifestation_id = this.parentNode.dataset.id;
+        var $statusBtn = $(this).closest('[data-id]');
+        if (read_status === 0) {
+            read_status = 1;
+            changeStatus(manifestation_id, read_status, $statusBtn);
+        } else {
+            return false;
+        }
+    })
+
+    .on('click', '.change_status', function(e) {
+        e.preventDefault();
+        var read_status = this.dataset.status;
+        var $statusBtn = $(this).closest('[data-id]');
+        var $manifestation_id = $statusBtn.attr('data-id');
+        var $now_status = $('#status_name_' + $manifestation_id).attr('data-status');
+        if (read_status !== $now_status) {
+            changeStatus($manifestation_id, read_status, $statusBtn);
+        }
+    })
+
+    .on('click', '.reviewEdit', function(event) {
+        event.preventDefault();
+        $('#setting-modal').modal('hide');
+        reviewProcess(this.dataset.mid);
+    })
+
+    .on('click','.new-review',function(event) {
+        event.preventDefault();
+        var mid = this.dataset.mid;
+        $.ajax({
+            url: STORE_URL + 'cart/login',
+            dataType: 'json',
+            xhrFields: { withCredentials: true },
+        })
+        .done(function(data) {
+            if(data.status == 'error_login'){
+                $.alertModal('警告', '請先登入', '<a href="' + data.url + '" class="btn btngreen">登入</a>');
+            }else{
+                reviewProcess(mid);
+            }
+        })
+    })
+
+    //願望書單
+    .on('click', '.wishlist', function(event) {
+        event.preventDefault();
+        var that = $(this);
+        var mid = that.attr('data-manifestation_id');
+        var liked = (that.attr('data-liked') == 1) ? 'unlike' : 'like';
+        var path = location.href;
+        $.ajax({
+            url: SOCIAL_URL + 'wishlist_admin/list_book/' + liked,
+            type: 'post',
+            data: {manifestation_id : mid, type : 0, path : path},
+            dataType: 'json',
+        })
+        .done(function(data) {
+            if(data.status == 'error_login'){
+                $.alertModal('警告', '請先登入', '<a href="' + data.url + '" class="btn btngreen">登入</a>');
+            }else if(data.status == 'ok'){
+                var desc = '';
+                if (liked == 'unlike') {
+                    that.attr('data-liked', 0);
+                    that.removeClass('active');
+                    that.attr('title', '加入欲購清單');
+                    desc = '已從欲購清單移除';
+                }else{
+                    that.attr('data-liked', 1);
+                    that.addClass('active');
+                    that.attr('title', '從欲購清單移除');
+                    desc = '已成功加入欲購清單，<a href="/me/wishlist">前去看看</a>。';
+                }
+                $.alertModal('欲購清單', desc, '<button class="btn btngreen" data-dismiss="modal">確定</button>');
+            }else{
+                $.alertModal('欲購清單', data.desc, '<button class="btn btngreen" data-dismiss="modal">確定</button>');
+            }
+        })
+    })
+
+    //我想要電子書
+    .on('click', '.wish_ebook', function(event) {
+        event.preventDefault();
+        var that = $(this);
+        var mid = that.attr('data-manifestation_id');
+        var liked = (that.attr('data-liked') == 1) ? 'unlike' : 'like';
+        var path = location.href;
+        $.ajax({
+            url: SOCIAL_URL + 'wishlist_admin/list_book/' + liked,
+            type: 'post',
+            data: {manifestation_id : mid, type : 1, path : path},
+            dataType: 'json',
+        })
+        .done(function(data) {
+            if(data.status === 'error_login'){
+                $.alertModal('警告', '請先登入', '<a href="' + data.url + '" class="btn btngreen">登入</a>');
+            }else if(data.status === 'ok'){
+                var desc = '';
+                if (liked == 'unlike') {
+                    that.attr('data-liked', 0);
+                    that.removeClass('active');
+                    that.attr('title', '我想要電子書');
+                    desc = '已移除我想要電子書';
+                }else{
+                    that.attr('data-liked', 1);
+                    that.addClass('active');
+                    that.attr('title', '取消我想要電子書');
+                    desc = 'Readmoo 收到您的願望了！您可以前往排行榜看看其他人都想要哪些電子書！';
+                }
+                var segments = location.pathname.split('/');
+                if (segments.indexOf('wishlist-ebook') == -1) {
+                    $.alertModal('提示', desc, '<button class="btn btncancel" data-dismiss="modal">關閉</button><a href="'+SOCIAL_URL+'wishlist-ebook" class="btn btngreen">前往排行榜</a>');
+                }else{
+                    that.parent().parent().parent().find('.members>a').html(data.total);
+                }
+            }else{
+                $.alertModal('提示', data.desc, '<button class="btn btngreen" data-dismiss="modal">確定</button>');
+            }
+        })
+    })
+
+    //切換書單呈現模式
+    .on('click','[data-switch]' ,function(e){
+      e.preventDefault();
+      var $this = $(this);
+      var $booksContainer = $('.books-container');
+      $this.siblings().removeClass('active');
+      $this.addClass('active');
+      var dataSwitch = $this.attr('data-switch');
+      if (dataSwitch === 'grid'){
+        $booksContainer.attr('data-view', 'grid-view');
+      }else{
+        $booksContainer.attr('data-view', 'list-view');
+      }
+    })
+    //刪除劃線註記
+    .on('click', '.del_quote', function(event) {
+        event.preventDefault();
+        var c = window.confirm('確認要刪除此則劃線註記？');
+        if (!c){
+            return false;
+        }
+        var that = $(this);
+        var quote_id = that.attr('data-id');
+        var work_id = that.attr('data-work_id');
+        $.ajax({
+            url: SOCIAL_URL + 'quote_admin/del_quote',
+            data: {quote_id : quote_id, work_id : work_id},
+            type: 'post',
+            dataType: 'json',
+            success: function(data) {
+                if (data.status == 'error') {
+                    $.alertModal('提示', data.desc);
+                }else if (data.status == 'error_login') {
+                    $.alertModal('提示', data.desc, '<a href="' + data.url + '" class="btn btn-danger">登入</a>');
+                }else{
+                    var segments = location.pathname.split('/');
+                    if (segments.indexOf('group') != -1) {
+                        window.location.href = location.href;
+                    }else if (segments.indexOf('quote') != -1 && segments.indexOf('detail') != -1) {
+                        window.location.href = $('.quote-from>a').attr('href');
+                    }else{
+                        $.pjax({
+                            scrollTo: false,
+                            container: '#chalkboard',
+                            fragment: '#chalkboard',
+                            url: location.href,
+                            timeout: 3000
+                        });
+                    }
+                }
+            }
+        });
+    })
+
+    //刪除回應
+    .on('click','.del_comment', function(event) {
+        event.preventDefault();
+        tData = $(this);
+        $.alertModal('提示', '確定刪除回應嗎?',
+            '<button class="btn btn-danger" data-dismiss="modal">取消</button>'+
+            '<a href="" id="comment_del" class="btn btn-success" data-dismiss="modal">確定</a>'
+            );
+    })
+
+    .on('change', '[name="stconvert"]', function(){
+        var search_url = new URL(location);
+        var url_params = new URLSearchParams(search_url.search);
+        url_params.set('st', $(this).prop('checked'));
+        search_url.search = url_params.toString();
+        self.location.href = search_url;
+    })
+
+    .ready(function() {
+        var segments = location.pathname.split('/');
+        gate = segments.indexOf('bookshelf');
+
+        var keyword_search = function(e) {
+            var k = $.trim($('input[name="keyword_input"]').val());
+            if (k !== '' && k !== 'undefined') {
+                var searchUrl = new URL(SOCIAL_URL + 'search/keyword');
+                var urlParams = new URLSearchParams(searchUrl.search);
+                urlParams.set('q', keyword);
+                urlParams.set('st', true);
+                searchUrl.search = urlParams.toString();
+                self.location.href = searchUrl;
+            }
+        };
+
+        var books = new Bloodhound({
+            datumTokenizer: Bloodhound.tokenizers.obj.whitespace('value'),
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            remote: {
+                url: SOCIAL_URL + 'search/suggest?keyword=%QUERY',
+                wildcard: '%QUERY',
+            }
+        });
+
+        var headerForm = {
+            init: function(){
+                this.$el = $('.navbar-form');
+                $input = this.$el.find('[name="keyword_input"]');
+                $input.typeahead({
+                    highlight: true,
+                }, {
+                    name: 'books',
+                    displayKey: 'value',
+                    limit: 5,
+                    source: books.ttAdapter(),
+                    templates: {
+                        empty: ['<div class="empty-message"><p>無相關書籍</p></div>'],
+                    },
+                });
+                this.$el.on('submit', function(e){
+                    e.preventDefault();
+                    var keyword = $(this).find('[name="keyword_input"]').val();
+                    if (keyword !== '' && keyword !== undefined) {
+                        var searchUrl = new URL(SOCIAL_URL + 'search/keyword');
+                        var urlParams = new URLSearchParams(searchUrl.search);
+                        urlParams.set('q', keyword);
+                        urlParams.set('st', true);
+                        searchUrl.search = urlParams.toString();
+                        self.location.href = searchUrl;
+                    }
+                });
+                this.$el.bind('typeahead:selected', function(ev, suggestion) {
+                    var keyword = suggestion.value;
+                    if (keyword !== '' && keyword !== undefined) {
+                        self.location.href = SOCIAL_URL + 'search/keyword?q=' + encodeURIComponent(keyword);
+                    }
+                });
+            }
+        }
+
+        $('#bookReview').on('hidden.bs.modal', function() {
+             $('#review').bootstrapValidator('resetForm', 'resetFormData', 'true');
+        });
+
+        $('.lists-display').on('click', '.del-list', function(e){
+            e.preventDefault();
+            console.log('delete');
+
+            var x = window.confirm('按下確認後會刪除此書單的相關資料，但不影響您對每一本書的閱讀狀態及評分資訊，確認要刪除嗎？');
+            if (!x){
+                return false;
+            }
+            var $this = $(this);
+            $this.attr('data-loading', 'loading');
+            var list_id = $this.attr('data-listid');
+            var $defer = $.ajax({
+                url: SOCIAL_URL+'booklist/api/remove_booklist',
+                data: {
+                    list_id: list_id
+                },
+                type: 'POST',
+                dataType: 'json'
+            });
+
+            $defer.done(function(data){
+                console.log(data);
+                $this.attr('data-loading', '');
+                if (data.status === 'ok'){
+                    window.location.reload();
+                }
+            });
+        });
+        books.initialize();
+        headerForm.init();
+        pageSpinner.init();
+        ggReport.init();
+        starMarker();
+    });

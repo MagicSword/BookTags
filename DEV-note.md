@@ -1,5 +1,13 @@
 # Development Notes
 
+# Feature Require
+
+* Flask web ui
+* manage database of my own collection(Books,games,musics,movies,files,etc)
+    * CURD(Create,Update,Retrieve,Delete)
+    * fetch data from online data source(multiple)
+* Output booktags PDF    
+
 
 # Requirement lib
 * pymarc - python library for  MARC manager

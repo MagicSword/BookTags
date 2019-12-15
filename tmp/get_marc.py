@@ -271,7 +271,7 @@ def batch_cli():
 
 if __name__ == '__main__':
     #cli()
-    #with open('./tmp/savefilehere.txt','w') as fd:
+    #with open('file','w') as fd:
     #    fd.write("hello")
     batch_cli()
 

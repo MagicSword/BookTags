@@ -1,0 +1,216 @@
+(function() {
+    var tagsValidationRule = '';
+    var $bookshelfPromise;
+
+    var message_controle = function(type ,message) {
+        var class_tag = '';
+        switch (type) {
+            case 'info':
+                class_tag = 'alert alert-info ';
+                break;
+            case 'error':
+                class_tag = 'alert alert-danger ';
+                break;
+            case 'success':
+                class_tag = 'alert alert-success ';
+                break;
+            default:
+                class_tag = '';
+                break;
+        }
+        var msg_div = '<div class="'+ class_tag +'alert_msg fade in">message</div>';
+        var msg = msg_div.replace(/message/, message);
+        $('.alert_msg').replaceWith(msg);
+    };
+
+    var buttonDisplay = function(number){
+        var qs = document.getElementById(number);
+        if ($('#name'+ number).val() !== qs.dataset.name) {
+            $('#saveShelf'+ number).css('visibility', 'visible');
+        } else {
+            $('#saveShelf'+ number).css('visibility', 'hidden');
+        }
+    };
+
+    var bookshelf = function(){
+        var qs = document.getElementById('bookshelfName');
+        var param = {
+            name: qs.dataset.id,
+            type: qs.dataset.type,
+         };
+
+        $bookshelfPromise = $.ajax({
+            url: SOCIAL_URL +'bookshelf/case_list',
+            dataType: 'json',
+            data: $.param(param),
+            type: 'POST',
+        }).done(function(data) {
+            if (data.hasOwnProperty('status')) {
+                switch(data.status) {
+                    case 'ok':
+                        var cornerTemplate = Handlebars.compile($('#social-corner-template').html());
+                        $('#bookshelfName').html(cornerTemplate(data));
+
+                        var modalTemplate = Handlebars.compile($('#flag-modal-template').html());
+                        $('#establishedFlag').html(modalTemplate(data));
+
+                        if (param.type === 'me') {
+                            tagsValidationRule = data.addRule;
+                            var valueStorage = [];
+                            if (data.custom.length > 0) {
+                                data.custom.sort(function(a, b) {
+                                    return b.works - a.works
+                                });
+
+                                for (var key in data.custom) {
+                                    var keyPair = {
+                                        tagSn: data.custom[key].sn,
+                                        tagName: data.custom[key].name
+                                    };
+                                    valueStorage.push(keyPair);
+                                }
+                            }
+                            localStorage.setItem('user-tags', JSON.stringify(valueStorage));
+                        }
+
+                        break;
+
+                    case 'error_login':
+                        $.alertModal('警告', '請先登入', '<a href="' + data.url + '" class="btn btnpink">登入</a>');
+                        break;
+
+                    default:
+                        $.alertModal('錯誤', '很抱歉出現錯誤，請重新載入');
+                        break;
+                }
+            }
+        }).fail(function(jqXHR){
+            $.alertModal('錯誤', '很抱歉出現錯誤，請重新載入');
+        });
+    };
+
+    $(document)
+        .ready(function() {
+            var $tagsForm = $('#addShelf');
+            bookshelf();
+
+            $bookshelfPromise.promise().done(function() {
+                $tagsForm.bootstrapValidator(tagsValidationRule)
+                    .on('success.form.bv', function(e, data) {
+                        e.preventDefault();
+                        $.ajax({
+                            url: SOCIAL_URL +'bookshelf/validation/add',
+                            data: $(e.target).serialize(),
+                            dataType: 'json',
+                            type: 'POST',
+                        }).done(function(data) {
+                            $tagsForm.bootstrapValidator('resetForm', 'resetFormData', 'true');
+
+                            if (data.hasOwnProperty('status')){
+                                switch(data.status) {
+                                    case 'ok':
+                                        message_controle('success', '新增成功');
+                                        bookshelf();
+                                        break;
+                                    case 'error_login':
+                                        $.alertModal('警告', '請先登入', '<a href="' + data.url + '" class="btn btnpink">登入</a>');
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            } else {
+                                $.alertModal('錯誤', '很抱歉出現錯誤，請重新載入');
+                            }
+                        }).fail(function(jqXHR){
+                            message_controle('error', jqXHR.responseText);
+                        });
+                });
+            });
+
+            $('#shelveAdmin').on('hidden.bs.modal', function() {
+                $tagsForm.bootstrapValidator('resetForm', 'resetFormData', 'true');
+                message_controle('def', '');
+            });
+        })
+
+        .on('click', '.deleteShelf', function(event){
+            var setDelete = document.getElementById('deleteName');
+            setDelete.dataset.id = this.dataset.id;
+            setDelete.textContent = $('#name'+ this.dataset.id).val();
+        })
+
+        .on('click', '#confrimDelete', function(event){
+            var dn = document.getElementById('deleteName');
+            var param = {
+                bookshelfId: dn.dataset.id
+            };
+            $.ajax({
+                url: SOCIAL_URL +'bookshelf/validation/del',
+                data: $.param(param),
+                dataType: 'json',
+                type: 'POST',
+            }).done(function(data) {
+                if (data.hasOwnProperty('status')) {
+                    switch(data.status) {
+                        case 'ok':
+                            $('#confrim').modal('hide');
+                            bookshelf();
+                            break;
+                        case 'error_login':
+                            $.alertModal('警告', '請先登入', '<a href="' + data.url + '" class="btn btnpink">登入</a>');
+                            break;
+                        default:
+                            break;
+                    }
+                } else {
+                    $.alertModal('錯誤', '很抱歉出現錯誤，請重新載入');
+                }
+            }).fail(function(jqXHR){
+                message_controle('error', jqXHR.responseText);
+            });
+        })
+
+        .on('input propertychange', '.renameShelf', function(event) {
+            buttonDisplay(this.dataset.id);
+        })
+
+        .on('click', '.saveShelf', function(event) {
+            var param = {
+                bookshelfId: this.dataset.id,
+                bookshelfName: $('#name'+ this.dataset.id).val()
+            };
+
+            $.ajax({
+                url: SOCIAL_URL +'bookshelf/validation/edit',
+                data: $.param(param),
+                dataType: 'json',
+                type: 'POST',
+            }).done(function(data) {
+                if (data.hasOwnProperty('status')) {
+                    switch(data.status) {
+                        case 'ok':
+                            bookshelf();
+                            break;
+                        case 'error_login':
+                            $.alertModal('警告', '請先登入', '<a href="' + data.url + '" class="btn btnpink">登入</a>');
+                            break;
+                        default:
+                            break;
+                    }
+                } else {
+                    $.alertModal('錯誤', '很抱歉出現錯誤，請重新載入');
+                }
+            }).fail(function(jqXHR){
+                message_controle('error', jqXHR.responseText);
+            });
+        })
+
+        .on('click', '#cancelDelete', function(event) {
+            $('#confrim').modal('hide');
+        })
+
+        .on('click', '#bookshelfCancel', function(event) {
+            $('.modal-backdrop').remove();
+            bookshelf();
+        });
+})();
