@@ -1,0 +1,49 @@
+.navbar {
+    border-radius: 0;
+}
+/*
+.alert {
+  padding: 12px;
+  border-radius: 3px;
+  font-size: 1.2rem;
+  margin-bottom: 16px;
+  border-width: 2px;
+  border-style: solid;
+}
+
+.alert-error {
+  padding: 12px;
+  border-radius: 3px;
+  font-size: 1.2rem;
+  margin-bottom: 16px;
+  border: 2px solid darkred;
+  background-color: red;
+  color: white;
+}
+
+.alert-info {
+  padding: 12px;
+  border-radius: 3px;
+  font-size: 1.2rem;
+  margin-bottom: 16px;
+  border: 2px solid orange;
+  background-color: yellow;
+  color: black;
+}
+*/
+/* code alert style, by Grey Li*/
+.alert-code {
+    color: #66ff66;
+    background-color: #000000;
+    border-color: #ebccd1;
+}
+
+.alert-code hr {
+    border-top-color: #000066;
+}
+
+.alert-code .alert-link {
+    color: #ff9900;
+}
+
+

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-    __init__.py
+    example.py
     ~~~~~~~~~
-    init
+    A simple command line application to run flask apps.
     :copyright: 2019 Miller
     :license: BSD-3-Clause
 """
@@ -15,16 +15,13 @@
 #     the current directory is changed with os.chdir(), an incorrect
 #     path will be displayed.
 
-import os
-
+# import os
+# from flask_sqlalchemy import SQLAlchemy
 
 # --------------------------------------------------------- common routines
-USER_HOME = os.path.expanduser("~")
-Project_HOME = os.path.join(USER_HOME, ".booktags")
-# Project-wide setting
 
-if not os.path.exists(Project_HOME):
-    os.makedirs(Project_HOME)
+
+
 
 if __name__ == '__main__':
     pass

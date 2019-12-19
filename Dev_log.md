@@ -24,6 +24,9 @@ or `set FLASK_APP=booktags.cli` then `flask run`
     
 # 20191215
 * 1. [flask_navbar](https://github.com/zcyuefan/flask-navbar) : 新版的flask-nav
+* https://github.com/hack4impact/flask-base
+https://stackoverflow.com/questions/57660542/flask-closing-flash-message
+https://greyli.com/flask-set-let-flash-message-supports-a-bootstrap-message-style/
 
 
     

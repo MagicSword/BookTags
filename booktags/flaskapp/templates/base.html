@@ -13,46 +13,65 @@
     {%- endblock metas %}
     <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
-
-
     {%- block styles %}
     <!-- Bootstrap -->
+
+
     <link href="{{bootstrap_find_resource('css/bootstrap.css', cdn='bootstrap')}}" rel="stylesheet">
+    <link href="{{ url_for('static',filename='css/base.css')}}" rel="stylesheet">
+
     {%- endblock styles %}
     {%- endblock head %}
   </head>
   <body{% block body_attribs %}{% endblock body_attribs %}>
     {% block body -%}
     {% block navbar %}
+    {{super()}}
 
-
-    {{ super() }}
-
-    <div class="navbar navbar-inverse " role="navigation">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle"
-                 data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="/">Booktags</a>
-            </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li><a href="/">Home</a></li>
-                </ul>
-            </div>
+     <nav class="navbar navbar-inverse">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#"><span class="glyphicon glyphicon-book"></span> Booktags</a>
         </div>
-    </div>
+        <div class="collapse navbar-collapse" id="myNavbar">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+            <li><a href="#">Page 1</a></li>
+            <li><a href="#">Page 2</a></li>
+            <li><a href="#">Page 3</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+            <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
 
 
     {%- endblock navbar %}
     {% block content -%}
 
+
+
     <div class="container">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                <button type="button" class="close" data-dismiss="alert" onclick=delete_flash(this)>
+                    <span class="glyphicon glyphicon-remove-circle"></span>
+                </button>
+                {{message}}
+            </div>
+            {% endfor %}
+        {% endwith %}
+
         <div class="page-header">
             {% block page_content %}
             {% endblock page_content %}
@@ -66,6 +85,12 @@
     {% block scripts %}
     <script src="{{bootstrap_find_resource('jquery.js', cdn='jquery')}}"></script>
     <script src="{{bootstrap_find_resource('js/bootstrap.min.js', cdn='bootstrap')}}"></script>
+
+    <script>
+    function delete_flash(flash){
+        $(flash).parent().remove()
+    }
+    </script>
 
     {{ moment.include_moment() }}
     {{ moment.locale('en-us') }}

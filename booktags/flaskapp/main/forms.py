@@ -40,6 +40,9 @@ class SignupForm(FlaskForm):
     confirm=PasswordField("Confirm Password",[InputRequired()])
     signup=SubmitField("Sign up")
 
+class NameForm(FlaskForm):
+    name = StringField('What is your name?', validators=[DataRequired()])
+    submit = SubmitField('Submit')
 
 
 

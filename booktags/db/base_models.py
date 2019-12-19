@@ -14,18 +14,9 @@
 #   - If the __file__ attribute on a module is a relative path and
 #     the current directory is changed with os.chdir(), an incorrect
 #     path will be displayed.
-
-import abc
-
-
-# --------------------------------------------------------- common routines
-
-# -*- coding: utf-8 -*-
-
 from sqlalchemy import Boolean, Column, DateTime, String, Text, ForeignKey , Integer
 from sqlalchemy.ext.declarative import declarative_base
-
-
+# --------------------------------------------------------- common routines
 
 Base = declarative_base()
 ID_LEN = 100

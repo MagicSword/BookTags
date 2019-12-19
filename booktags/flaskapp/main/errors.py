@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-    __init__.py
+    example.py
     ~~~~~~~~~
-    init
+    A simple command line application to run flask apps.
     :copyright: 2019 Miller
     :license: BSD-3-Clause
 """
@@ -15,16 +15,20 @@
 #     the current directory is changed with os.chdir(), an incorrect
 #     path will be displayed.
 
-import os
+from flask import render_template
 
+from . import main
 
 # --------------------------------------------------------- common routines
-USER_HOME = os.path.expanduser("~")
-Project_HOME = os.path.join(USER_HOME, ".booktags")
-# Project-wide setting
 
-if not os.path.exists(Project_HOME):
-    os.makedirs(Project_HOME)
+@main.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+@main.errorhandler(500)
+def internal_server_error(e):
+    return render_template('500.html'), 500
+
 
 if __name__ == '__main__':
     pass

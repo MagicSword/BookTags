@@ -24,9 +24,15 @@ __all__ = ("main",)
 
 
 def main():
-    from booktags.cli import cli
+    """
+    main entry point
+    """
 
-    cli()
+
+    #from booktags.cli import cli
+    #import booktags
+    #booktags.cli
+
 
 
 if __name__ == "__main__":

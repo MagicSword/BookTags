@@ -17,23 +17,42 @@
 
 from datetime import datetime
 
+from flask import render_template,flash, session, redirect, url_for,current_app
+
 from . import main
-from flask import render_template
-from .forms import SigninForm, SignupForm
-
-
+from .forms import SigninForm, SignupForm, NameForm
+from ..model.models import User
+from .. import db
 from .navbar import nav
 
 # --------------------------------------------------------- common routines
 
 
-@main.route('/')
-@main.route('/index')
+
+@main.route('/', methods=['GET', 'POST'])
 def index():
-    print(__name__)
-    print(__name__.split('.')[0])
-    msg = "Flask app Index page(__name__) : \n" + __name__
-    return render_template('index.html',message=msg,current_time=datetime.utcnow())
+    flash("Name of file: {}".format(__name__), 'danger')
+    msg = "Hello"
+    form = NameForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.name.data).first()
+        if user is None:
+            user = User(username=form.name.data)
+            db.session.add(user)
+            db.session.commit()
+            session['known'] = False
+            # if current_app.config['FLASKY_ADMIN']:
+                #send_email(current_app.config['FLASKY_ADMIN'], 'New User','mail/new_user', user=user)
+
+        else:
+            session['known'] = True
+        session['name'] = form.name.data
+        return redirect(url_for('.index'))
+    return render_template('index.html',
+                           form=form, name=session.get('name'),
+                           message=msg, current_time=datetime.utcnow(),
+                           known=session.get('known', False))
+
 
 @main.route('/signin', methods=['GET','POST'])
 def signin():
@@ -48,19 +67,14 @@ def signin():
 
 @main.route('/signup')
 def signup():
-    pass
+    username= None
+    form = SignupForm()
 
 @main.route('/user/<username>')
 def user(username):
     return render_template('user.html',name=username)
 
-@main.errorhandler(404)
-def page_not_found(e):
-    return render_template('404.html'), 404
 
-@main.errorhandler(500)
-def all_exception_handler(e):
-    return render_template('500.html'), 500
 
 
 if __name__ == '__main__':

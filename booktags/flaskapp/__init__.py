@@ -18,26 +18,45 @@
 from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
-
+from flask_sqlalchemy import SQLAlchemy
+#from flask_migrate import Migrate
 #from .main.navbar import nav
-#from config import Config
+from ..config_proj import config, DevelopmentConfig
+
+
+
 
 # --------------------------------------------------------- common routines
+# Initialize Bootstrap
+bootstrap = Bootstrap()
+moment = Moment()
+# Initialize SQLAlchemy
+db = SQLAlchemy()
+#migrate = Migrate()
 
-def create_app():
+
+
+def create_app(config_name):
     # Initialize Flask instance
     app = Flask(__name__)
-    app.config['SECRET_KEY'] = 'devkeys'
-    # Initialize  Blueprint
-    from .main import main as main_blueprint
-    app.register_blueprint(main_blueprint)
-    # Initialize Bootstrap
-    Bootstrap(app)
-    moment  = Moment(app)
+    # app.config.from_object(config[config_name])
+    # config[config_name].init_app(app)
+    app.config.from_object(config[config_name])
+    config[config_name].init_app(app)
 
     # Initialize Nav
     # TODO: fix flask_navbar
-    #nav.init_app(app)
+    bootstrap.init_app(app)
+    moment.init_app(app)
+    db.init_app(app)
+    # db.create_all(app)
+    #migrate.init_app(app,db)
+
+
+    # Initialize  Blueprint
+    from .main import main as main_blueprint
+    app.register_blueprint(main_blueprint)
+    # 指派 路由 ，錯誤頁面
 
     # return app
     return app
