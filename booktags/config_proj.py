@@ -19,7 +19,6 @@ import os
 
 from .logger import create_logger
 
-
 USER_HOME = os.path.expanduser("~")
 Project_HOME = os.path.join(USER_HOME, ".booktags")
 # SQL_ALCHEMY_CONN_PGSQL = "postgres+psycopg2://miller:ming22d@localhost:5432/booktags"
@@ -33,8 +32,20 @@ class Config(object):
     DEBUG = False
     TESTING = False
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'hard to guess string'
+    # Flask Mail setting
+    MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.mailtrap.io')
+    MAIL_PORT = int(os.environ.get('MAIL_PORT', '2525'))
+    #MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', 'true').lower() in ['true', 'on', '1']
+    MAIL_USE_TLS = True
+    MAIL_USE_SSL = False
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME') or "fd865060444122"
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD') or "48cd09b5c34f24"
+    PROJECT_MAIL_SUBJECT_PREFIX = '[Booktags]'
+    PROJECT_MAIL_SENDER = 'Project Admin <booktags@example.com>'
+    # end Flask mail setting
+    #PROJECT_ADMIN = "booktags@example.com"
 
-    FLASK_ADMIN = os.environ.get('FLASK_ADMIN')
+    PROJECT_ADMIN = os.environ.get('PROJECT_ADMIN')
     #SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
@@ -56,7 +67,7 @@ class DevelopmentConfig(Config):
 
     # logger.info("Export Done!")
 
-    # SQLALCHEMY_TRACK_MODIFICATONS = False
+
     DB_name = "booktags-dev.sqlite"
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
                               "sqlite:///" + os.path.join(Project_HOME, DB_name)

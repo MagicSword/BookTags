@@ -18,6 +18,7 @@
 from flask import Flask
 from flask_bootstrap import Bootstrap
 from flask_moment import Moment
+from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
 #from flask_migrate import Migrate
 #from .main.navbar import nav
@@ -30,6 +31,7 @@ from ..config_proj import config, DevelopmentConfig
 # Initialize Bootstrap
 bootstrap = Bootstrap()
 moment = Moment()
+mail = Mail()
 # Initialize SQLAlchemy
 db = SQLAlchemy()
 #migrate = Migrate()
@@ -48,6 +50,7 @@ def create_app(config_name):
     # TODO: fix flask_navbar
     bootstrap.init_app(app)
     moment.init_app(app)
+    mail.init_app(app)
     db.init_app(app)
     # db.create_all(app)
     #migrate.init_app(app,db)

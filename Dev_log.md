@@ -28,5 +28,10 @@ or `set FLASK_APP=booktags.cli` then `flask run`
 https://stackoverflow.com/questions/57660542/flask-closing-flash-message
 https://greyli.com/flask-set-let-flash-message-supports-a-bootstrap-message-style/
 
-
+# 20191219
+* setting 
+```python
+set FLASK_APP=booktags.cli
+set FLASK_DEBUG=1
+```
     
