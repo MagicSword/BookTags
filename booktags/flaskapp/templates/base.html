@@ -50,42 +50,39 @@
 {%- endblock navbar %}
 
 {% block content -%}
-    {{ super() }}
+{{ super() }}
+<div class="container" id="flash-msg">
 
-    <div class="container" id="flash-msg">
-
-
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% for category, message in messages %}
-            <div class="alert alert-{{ category }} alert-dismissible fade in textCenter" role="alert">
-                <button type="button" class="close" data-dismiss="alert" onclick=delete_flash(this)>
-                    <span class="glyphicon glyphicon-remove-circle"></span>
-                </button>
-                {{message}}
-            </div>
-            {% endfor %}
-        {% endwith %}
-        <!-- TODO: 把整個 container 設成 click dismiss
-        https://stackoverflow.com/questions/43626506/how-to-make-a-closing-alert-in-bootstrap
-        https://www.w3schools.com/bootstrap/bootstrap_ref_js_alert.asp
-        -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade in textCenter" role="alert">
+            <button type="button" class="close" data-dismiss="alert" onclick=delete_flash(this)>
+                <span class="glyphicon glyphicon-remove-circle"></span>
+            </button>
+            {{message}}
+        </div>
+        {% endfor %}
+    {% endwith %}
+    <!-- TODO: 把整個 container 設成 click dismiss
+    https://stackoverflow.com/questions/43626506/how-to-make-a-closing-alert-in-bootstrap
+    https://www.w3schools.com/bootstrap/bootstrap_ref_js_alert.asp
+    -->
 
 
-        <script type="text/javascript">
-        $(document).ready(function() {
-            $("#flash-msg").click(function() {
-                $(".alert").alert("close");
-            });
+    <script type="text/javascript">
+    $(document).ready(function() {
+        $("#flash-msg").click(function() {
+            $(".alert").alert("close");
         });
-        </script>
+    });
+    </script>
 
-            {% block page_content %}
-            {% endblock page_content %}
-
-    </div>
+    {% block page_content %}
+    {% endblock page_content %}
+</div>
 {%- endblock content %}
 
 {% block scripts %}
-{{ super() }}
-{{ moment.include_moment() }}
-{% endblock %}
+    {{ super() }}
+    {{ moment.include_moment() }}
+{% endblock scripts %}

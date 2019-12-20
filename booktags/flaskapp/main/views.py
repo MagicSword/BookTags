@@ -20,8 +20,8 @@ from datetime import datetime
 from flask import render_template,flash, session, redirect, url_for,current_app
 from flask_login import login_required, current_user
 from . import main
-from .forms import NameForm, EditProfileForm, EditProfileAdminForm
-from ..model.models import User, Role
+from .forms import NameForm, EditProfileForm, EditProfileAdminForm, PostForm
+from ..model.models import User, Role, Post ,Permission
 from .. import db
 from ..email import send_email
 from ..decorators import admin_required
@@ -31,28 +31,15 @@ from .navbar import nav
 
 @main.route('/', methods=['GET', 'POST'])
 def index():
-    # flash("Name of file: {}".format(__name__), 'danger')
-    msg = "Hello"
-    form = NameForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(username=form.name.data).first()
-        if user is None:
-            user = User(username=form.name.data)
-            db.session.add(user)
-            db.session.commit()
-            session['known'] = False
-            if current_app.config['PROJECT_ADMIN']:
-                send_email(current_app.config['PROJECT_ADMIN'], f'New User - {user.username}',
-                           'mail/new_user', user=user)
-
-        else:
-            session['known'] = True
-        session['name'] = form.name.data
+    form = PostForm()
+    if current_user.can(Permission.WRITE) and form.validate_on_submit():
+        post = Post(body=form.body.data,
+                    author=current_user._get_current_object())
+        db.session.add(post)
+        db.session.commit()
         return redirect(url_for('.index'))
-    return render_template('index.html',
-                           form=form, name=session.get('name'),
-                           message=msg, current_time=datetime.utcnow(),
-                           known=session.get('known', False))
+    posts = Post.query.order_by(Post.timestamp.desc()).all()
+    return render_template('index.html', form=form, posts=posts)
 
 
 @main.route('/user/<username>')
@@ -105,6 +92,3 @@ def edit_profile_admin(id):
     form.about_me.data = user.about_me
     return render_template('edit_profile.html', form=form, user=user)
 
-
-if __name__ == '__main__':
-    pass
