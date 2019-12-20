@@ -16,6 +16,11 @@
                     {{ post.body }}
                 {% endif %}
             </div>
+            <div class="post-footer" style="position: relative; color: blue; bottom: 1px; right: 1px;">
+                <a href="{{ url_for('.post', id=post.id) }}">
+                    <span class="label label-default"><span class="glyphicon glyphicon-link"></span> Permalink</span>
+                </a>
+            </div>
         </div>
     </li>
     {% endfor %}
