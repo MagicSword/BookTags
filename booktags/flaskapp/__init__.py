@@ -23,7 +23,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 #from flask_migrate import Migrate
 #from .main.navbar import nav
-
+from flask_pagedown import PageDown
 from ..config_proj import config
 # --------------------------------------------------------- common routines
 # Initialize
@@ -34,7 +34,7 @@ db = SQLAlchemy()
 #migrate = Migrate()
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
-
+pagedown = PageDown()
 
 def create_app(config_name):
     # Initialize Flask instance
@@ -51,6 +51,7 @@ def create_app(config_name):
     db.init_app(app)
     #migrate.init_app(app,db)
     login_manager.init_app(app)
+    pagedown.init_app(app)
 
     # Initialize  Blueprint
     # main blueprint
