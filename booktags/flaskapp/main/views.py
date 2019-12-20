@@ -20,7 +20,7 @@ from datetime import datetime
 from flask import render_template,flash, session, redirect, url_for,current_app
 
 from . import main
-from .forms import SigninForm, SignupForm, NameForm
+from .forms import NameForm
 from ..model.models import User
 from .. import db
 from ..email import send_email
@@ -28,11 +28,9 @@ from .navbar import nav
 
 # --------------------------------------------------------- common routines
 
-
-
 @main.route('/', methods=['GET', 'POST'])
 def index():
-    flash("Name of file: {}".format(__name__), 'danger')
+    # flash("Name of file: {}".format(__name__), 'danger')
     msg = "Hello"
     form = NameForm()
     if form.validate_on_submit():
@@ -43,7 +41,7 @@ def index():
             db.session.commit()
             session['known'] = False
             if current_app.config['PROJECT_ADMIN']:
-                send_email(current_app.config['PROJECT_ADMIN'], f'New User -{user.username}',
+                send_email(current_app.config['PROJECT_ADMIN'], f'New User - {user.username}',
                            'mail/new_user', user=user)
 
         else:
@@ -55,22 +53,6 @@ def index():
                            message=msg, current_time=datetime.utcnow(),
                            known=session.get('known', False))
 
-
-@main.route('/signin', methods=['GET','POST'])
-def signin():
-    username = None
-    form = SigninForm()
-    if form.validate_on_submit():
-        username=form.username.data
-        passowrd=form.password.data
-        form.username.data=''
-        form.password.data=''
-        return render_template('signin.html',form=form,username=username,password=password)
-
-@main.route('/signup')
-def signup():
-    username= None
-    form = SignupForm()
 
 @main.route('/user/<username>')
 def user(username):

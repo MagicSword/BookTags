@@ -1,69 +1,60 @@
 {% extends "bootstrap/base.html" %}
 
-{% block doc -%}
-<!DOCTYPE html>
-<html{% block html_attribs %}{% endblock html_attribs %}>
-{%- block html %}
-  <head>
-    {%- block head %}
-    <title>{% block title %}{{title|default}}{% endblock title %}</title>
+{% block title %}Booktags{% endblock %}
 
-    {%- block metas %}
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {%- endblock metas %}
-    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
-    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
-    {%- block styles %}
-    <!-- Bootstrap -->
+{% block head %}
+{{ super() }}
+<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+<link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+<link href="{{ url_for('static',filename='css/base.css')}}" rel="stylesheet">
+{% endblock %}
 
 
-    <link href="{{bootstrap_find_resource('css/bootstrap.css', cdn='bootstrap')}}" rel="stylesheet">
-    <link href="{{ url_for('static',filename='css/base.css')}}" rel="stylesheet">
+{% block navbar %}
 
-    {%- endblock styles %}
-    {%- endblock head %}
-  </head>
-  <body{% block body_attribs %}{% endblock body_attribs %}>
-    {% block body -%}
-    {% block navbar %}
-    {{super()}}
-
-     <nav class="navbar navbar-inverse">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="#"><span class="glyphicon glyphicon-book"></span> Booktags</a>
-        </div>
-        <div class="collapse navbar-collapse" id="myNavbar">
-          <ul class="nav navbar-nav">
-            <li class="active"><a href="/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
-            <li><a href="#">Page 1</a></li>
-            <li><a href="#">Page 2</a></li>
-            <li><a href="#">Page 3</a></li>
-          </ul>
-          <ul class="nav navbar-nav navbar-right">
-            <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
-            <li><a href="#"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
-          </ul>
-        </div>
-      </div>
-    </nav>
-
-
-    {%- endblock navbar %}
-    {% block content -%}
-
-
-
+<div class="navbar navbar-inverse" role="navigation">
     <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{{ url_for('main.index') }}"><span class="glyphicon glyphicon-book"></span> Booktags</a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li><a href="{{ url_for('main.index') }}"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                {% if current_user.is_authenticated %}
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-user"></span> Account <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="{{ url_for('auth.change_password') }}"><span class="glyphicon glyphicon-asterisk"></span> Change Password</a></li>
+                        <li><a href="{{ url_for('auth.change_email_request') }}"><span class="glyphicon glyphicon-send"></span> Change Email</a></li>
+                        <li><a href="{{ url_for('auth.logout') }}"><span class="glyphicon glyphicon-log-out"></span> Log Out </a></li>
+                    </ul>
+                </li>
+                {% else %}
+                <li><a href="{{ url_for('auth.login') }}"><span class="glyphicon glyphicon-log-in"></span> Log In </a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</div>
+{%- endblock navbar %}
+
+{% block content -%}
+    {{ super() }}
+
+    <div class="container" id="flash-msg">
+
 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% for category, message in messages %}
-            <div class="alert alert-{{ category }}">
+            <div class="alert alert-{{ category }} alert-dismissible fade in textCenter" role="alert">
                 <button type="button" class="close" data-dismiss="alert" onclick=delete_flash(this)>
                     <span class="glyphicon glyphicon-remove-circle"></span>
                 </button>
@@ -71,32 +62,27 @@
             </div>
             {% endfor %}
         {% endwith %}
+        <!-- TODO: 把整個 container 設成 click dismiss
+        https://stackoverflow.com/questions/43626506/how-to-make-a-closing-alert-in-bootstrap
+        https://www.w3schools.com/bootstrap/bootstrap_ref_js_alert.asp
+        -->
 
-        <div class="page-header">
+
+        <script type="text/javascript">
+        $(document).ready(function() {
+            $("#flash-msg").click(function() {
+                $(".alert").alert("close");
+            });
+        });
+        </script>
+
             {% block page_content %}
             {% endblock page_content %}
-        </div>
+
     </div>
+{%- endblock content %}
 
-
-    {%- endblock content %}
-
-
-    {% block scripts %}
-    <script src="{{bootstrap_find_resource('jquery.js', cdn='jquery')}}"></script>
-    <script src="{{bootstrap_find_resource('js/bootstrap.min.js', cdn='bootstrap')}}"></script>
-
-    <script>
-    function delete_flash(flash){
-        $(flash).parent().remove()
-    }
-    </script>
-
-    {{ moment.include_moment() }}
-    {{ moment.locale('en-us') }}
-    {%- endblock scripts %}
-    {%- endblock body %}
-  </body>
-{%- endblock html %}
-</html>
-{% endblock doc -%}
+{% block scripts %}
+{{ super() }}
+{{ moment.include_moment() }}
+{% endblock %}

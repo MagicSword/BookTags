@@ -1,5 +1,26 @@
 # Development Notes
 
+# Setting UP
+
+```bash
+set FLASK_APP=booktags.cli
+set FLASK_DEBUG=1
+set PROJECT_ADMIN=booktags@example
+```
+
+`flask test`
+
+*　models.py change
+
+`flask db migrate -m  "Change what this time"`
+`flask db upgrade`
+`flask db downgrade` 移除上一次的遷移
+
+
+pip freeze `pip freeze > requirements.txt
+`
+
+
 # Feature Require
 
 * Flask web ui

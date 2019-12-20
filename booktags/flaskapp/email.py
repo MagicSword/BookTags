@@ -30,6 +30,7 @@ def send_async_email(app, msg):
 
 
 def send_email(to, subject, template, **kwargs):
+    # logging
     logger = create_logger("")
     logger.info('Start logging email: \n')
 
@@ -37,10 +38,11 @@ def send_email(to, subject, template, **kwargs):
         pass
     except Exception as e:
         logger.exception("Runtime Error Message:")
-
+    logger.info("email.py info:")
     logger.info(f"to: {to}")
     logger.info(f"subject: {subject}")
     logger.info(f"template: {template}")
+    # end logging
 
 
     app = current_app._get_current_object()

@@ -15,19 +15,10 @@
 #     the current directory is changed with os.chdir(), an incorrect
 #     path will be displayed.
 
-from flask import render_template
-from . import main
-
+from flask import Blueprint
 # --------------------------------------------------------- common routines
 
-@main.errorhandler(404)
-def page_not_found(e):
-    return render_template('404.html'), 404
+auth = Blueprint('auth', __name__)
 
-@main.errorhandler(500)
-def internal_server_error(e):
-    return render_template('500.html'), 500
+from . import views
 
-
-if __name__ == '__main__':
-    pass

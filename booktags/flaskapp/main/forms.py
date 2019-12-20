@@ -16,29 +16,10 @@
 #     path will be displayed.
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField,PasswordField
-from wtforms.validators import DataRequired,EqualTo,Email,InputRequired
-
+from wtforms import StringField, SubmitField
+from wtforms.validators import DataRequired
 
 # --------------------------------------------------------- common routines
-
-class SigninForm(FlaskForm):
-    """
-
-    """
-    username=StringField("Username or email address",validators=[InputRequired()])
-    password=PasswordField("Password",validators=[InputRequired()])
-    signin=SubmitField("Sign in")
-
-class SignupForm(FlaskForm):
-    """
-
-    """
-    username=StringField("Username",[InputRequired()])
-    email=StringField("Email",[InputRequired(), Email])
-    password=PasswordField("Password",[InputRequired(), EqualTo('confirm',message="Passwords must match")])
-    confirm=PasswordField("Confirm Password",[InputRequired()])
-    signup=SubmitField("Sign up")
 
 class NameForm(FlaskForm):
     name = StringField('What is your name?', validators=[DataRequired()])

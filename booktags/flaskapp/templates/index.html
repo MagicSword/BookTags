@@ -9,11 +9,14 @@
 {{ super() }}
 <div class="container">
     <div class="page-header">
-        <h1>Message here: {{ message }}</h1>
-        <p>The local date and time is {{ moment(current_time).format('LLL') }}.</p>
-        <p>That was {{ moment(current_time).fromNow(refresh=True) }}</p>
+            <h1>Current User:
+                {% if current_user.is_authenticated %}
+                    {{ current_user.username }}
+                {% else %}
+                    Stranger
+                {% endif %}!
+            </h1>
 
-            <h1>Hello, {% if name %}{{ name }}{% else %}Stranger{% endif %}!</h1>
             {% if not known %}
             <p>Pleased to meet you!</p>
             {% else %}
@@ -21,108 +24,16 @@
             {% endif %}
 
         {{ wtf.quick_form(form) }}
-
        <!-- Fill content -->
+        <hr>
 
+        Hello! {{ name}}
 
-            <h1>Python Html Parsing</h1>
-
-
-
-
-
-
-
-            <p>Python Parsing libs.  bs4, lxml, pyquery, html.parser</p>
-            <p>Task list: 😄</p>
-            <ul>
-            <li><input checked="" disabled="" type="checkbox">初稿</li>
-            <li><input disabled="" type="checkbox">再讀</li>
-            <li><input disabled="" type="checkbox">筆記</li>
-            <li><input disabled="" type="checkbox">完成</li>
-            </ul>
-            <h1 id="heading">概述</h1>
-            <p>Python 中用來解析(Parsing) html, xml , XHTML 的工具
-            其他：XPATH</p>
-            <p>常見的有：</p>
-            <ol>
-            <li>bs4 (BeautifulSoup)</li>
-            <li>lxml</li>
-            <li>pyquery</li>
-            <li>python 中內建的 html.parser</li>
-            </ol>
-            <h1 id="beautifulsoup">BeautifulSoup</h1>
-            <ul>
-            <li><a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/">bs4 文件</a></li>
-            <li><a href="https://beautifulsoup.readthedocs.io/zh_CN/v4.4.0/" title="bs4 中文文件">bs4 中文文件</a></li>
-            </ul>
-            <h2 id="installing-beautiful-soup">Installing Beautiful Soup</h2>
-            <pre><code>$ pip install beautifulsoup4
-
-            </code></pre><h2 id="installing-a-parser">Installing a parser</h2>
-            <ul>
-            <li>html.parser
-            <ul>
-            <li>內建，速度中，容錯強，中文容錯力差</li>
-            </ul>
-            </li>
-            <li>html5lib
-            <ul>
-            <li>速度慢，容錯最好，生成 html5 文件, 以 browser 方式解析文件</li>
-            </ul>
-            </li>
-            <li>lxml
-            <ul>
-            <li>速度快，容錯強，需要 c  library</li>
-            </ul>
-            </li>
-            <li>lxml-xml (xml)
-            <ul>
-            <li>速度快，唯一支持 xml，需要 c library</li>
-            </ul>
-            </li>
-            </ul>
-            <p>parser 用法：<code>(BeautifulSoup(markup, &quot;htmlparser&quot;))</code></p>
-            <h2 id="kinds-of-objects">Kinds of objects</h2>
-            <p>bs4 中有4 種物件：</p>
-            <ul>
-            <li><code>Tag</code> : 標籤
-            <ul>
-            <li>tag.name  - str</li>
-            <li>tag.attrs - dict</li>
-            <li>tag.get -</li>
-            </ul>
-            </li>
-            <li><code>NavigablesString</code> : <code>Tag</code> 內的 文字?</li>
-            <li><code>BeautifulSoup</code> : 解析過的文件</li>
-            <li><code>Comment</code> : XHTML 中的註解 <code>&lt;!--</code>我是註解 <code>--&gt;</code></li>
-            </ul>
-
-            <div class="notices warning" ><p>bs4 中 <code>class</code> 用 <code>class_</code> ，避免跟原有的關鍵字衝突</p>
-            </div>
-
-            <p>找資料的方法</p>
-            <ol>
-            <li>Nagigation the tree: 用 CSS selector</li>
-            <li>Searching the tree: <code>find</code>, <code>find_all</code></li>
-            </ol>
-            <h2 id="searching-the-tree">Searching the Tree</h2>
-            <h2 id="searching-by-css-class">Searching by CSS class</h2>
-            <h1 id="heading-1">參考連結</h1>
-            <ol>
-
-            <li><a href="https://hiskio.com/courses/112">用Python爬取 Youtube 資訊 - 圖文課程</a></li>
-            </ol>
-            <h1 id="library">Library</h1>
-            <ol>
-            <li><a href="https://www.crummy.com/software/BeautifulSoup/bs4/doc/">bs4.doc</a></li>
-            <li><a href="https://github.com/lxml/lxml">lxml</a></li>
-            <li><a href="https://github.com/gawel/pyquery">pyquery</a></li>
-            <li><a href="https://docs.python.org/3/library/html.parser.html">html.parser.doc</a></li>
-            <li><a href="https://github.com/miso-belica/jusText">jusText</a></li>
-            </ol>
-
-<!-- end . Fill content-->
+        <hr>
+        <p>Message here: {{ message }}</p>
+        <p>The local datatime :  <b> {{ moment(current_time).format('YYYY-M-D h:m A') }} </b></p>
+        <p>That was : {{ moment(current_time).fromNow(refresh=True) }}</p>
+       <!-- end . Fill content-->
     </div>
 </div>
 {% endblock %}

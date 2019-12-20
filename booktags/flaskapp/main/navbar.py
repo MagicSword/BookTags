@@ -15,6 +15,7 @@
 #     the current directory is changed with os.chdir(), an incorrect
 #     path will be displayed.
 
+# TODO : fix flask_nav
 import abc
 from flask_bootstrap import __version__ as FLASK_BOOTSTRAP_VERSION
 from flask_nav import Nav
