@@ -16,7 +16,17 @@
                     {{ post.body }}
                 {% endif %}
             </div>
-            <div class="post-footer" style="position: relative; color: blue; bottom: 1px; right: 1px;">
+            <div class="post-footer">
+                {% if current_user == post.author %}
+                    <a href="{{ url_for('.edit', id=post.id) }}">
+                        <span class="label label-primary"><span class="glyphicon glyphicon-edit"></span> Edit</span>
+                    </a>
+                {% elif current_user.is_administrator() %}
+                    <a href="{{ url_for('.edit', id=post.id) }}">
+                        <span class="label label-danger"><span class="glyphicon glyphicon-pencil"></span> Edit [Admin]</span>
+                    </a>
+                {% endif %}
+
                 <a href="{{ url_for('.post', id=post.id) }}">
                     <span class="label label-default"><span class="glyphicon glyphicon-link"></span> Permalink</span>
                 </a>
