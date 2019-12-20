@@ -15,18 +15,15 @@
 #     the current directory is changed with os.chdir(), an incorrect
 #     path will be displayed.
 
-from datetime import datetime
-
-from flask import render_template,flash, session, redirect, url_for,current_app
+from flask import render_template,flash, redirect, url_for, current_app,  abort,request
 from flask_login import login_required, current_user
 from . import main
-from .forms import NameForm, EditProfileForm, EditProfileAdminForm, PostForm
+from .forms import EditProfileForm, EditProfileAdminForm, PostForm
 from ..model.models import User, Role, Post ,Permission
 from .. import db
-from ..email import send_email
 from ..decorators import admin_required
-from .navbar import nav
-
+# from .navbar import nav
+# from ..email import send_email
 # --------------------------------------------------------- common routines
 
 @main.route('/', methods=['GET', 'POST'])
@@ -38,8 +35,13 @@ def index():
         db.session.add(post)
         db.session.commit()
         return redirect(url_for('.index'))
-    posts = Post.query.order_by(Post.timestamp.desc()).all()
-    return render_template('index.html', form=form, posts=posts)
+    page = request.args.get('page', 1, type=int)
+    pagination = Post.query.order_by(Post.timestamp.desc()).paginate(
+        page, per_page=current_app.config['PROJECT_POSTS_PER_PAGE'],
+        error_out=False)
+    posts = pagination.items
+    return render_template('index.html', form=form, posts=posts,
+                           pagination=pagination)
 
 
 @main.route('/user/<username>')

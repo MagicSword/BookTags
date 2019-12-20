@@ -43,12 +43,10 @@ class Config(object):
     PROJECT_MAIL_SUBJECT_PREFIX = '[Booktags]'
     PROJECT_MAIL_SENDER = 'Project Admin <booktags@example.com>'
     # end Flask mail setting
-    #PROJECT_ADMIN = "booktags@example.com"
-
-    PROJECT_ADMIN = os.environ.get('PROJECT_ADMIN')
-    #SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-
+    PROJECT_ADMIN = os.environ.get('PROJECT_ADMIN')
+    #PROJECT_ADMIN = "booktags@example.com"
+    PROJECT_POSTS_PER_PAGE = 20
 
     @staticmethod
     def init_app(app):
