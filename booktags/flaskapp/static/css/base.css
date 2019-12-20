@@ -2,6 +2,15 @@
     border-radius: 0;
 }
 
+.profile-thumbnail {
+    position: absolute;
+}
+.profile-header {
+    min-height: 260px;
+    margin-left: 280px;
+}
+
+
 /*
 .alert {
   padding: 12px;
