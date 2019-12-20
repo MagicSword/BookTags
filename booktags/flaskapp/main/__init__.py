@@ -17,14 +17,13 @@
 
 from flask import Blueprint
 
-
 # --------------------------------------------------------- common routines
-
 
 main = Blueprint('main', __name__)
 
 from . import views, errors
+from ..model.models import Permission
 
-
-if __name__ == '__main__':
-    pass
+@main.app_context_processor
+def inject_permissions():
+    return dict(Permission=Permission)
