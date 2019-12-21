@@ -75,11 +75,21 @@ BackEnd
 
 
 
+Connected to PostgreSQL
+[](https://medium.com/jbennetcodes/how-to-use-pandas-to-access-databases-e4e74e6a329e)
 
 
+pip install psycopy2
 
+from pandas as pd
+from sqlalchemy import create_engine
 
+conn = create_engine('postgresql://miller:ming22@localhost:5432/booktags')^M
+df = pd.read_sql_table('readmoo_bookshelf', conn)
 
+pd.read_sql_query('show tables', conn)
+pd.read_sql_query('select count(*) from payment', conn)
+pd.read_sql_query('select * from payment limit 5', conn)
 
 
 

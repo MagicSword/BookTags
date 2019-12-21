@@ -35,3 +35,7 @@ set FLASK_APP=booktags.cli
 set FLASK_DEBUG=1
 ```
     
+# 20191221
+
+* `/docs/conf.py`
+* https://opensource.com/article/19/11/document-python-sphinx

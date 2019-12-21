@@ -31,6 +31,17 @@ class TestAddition(unittest.TestCase):
 
 
 
+from typing import List
+
+def greeting(names: List[str]) -> str:
+    return 'Hello, {}'.format(', '.join(names))
+
+def gteet(names: List[int]) -> int:
+    return 42
+
+
+greeting(['jane', 'john', 'judy'])
+
 
 if __name__ == '__main__':
     unittest.main()
