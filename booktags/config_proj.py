@@ -47,6 +47,8 @@ class Config(object):
     PROJECT_ADMIN = os.environ.get('PROJECT_ADMIN')
     #PROJECT_ADMIN = "booktags@example.com"
     PROJECT_POSTS_PER_PAGE = 20
+    PROJECT_FOLLOWERS_PER_PAGE = 50
+
 
     @staticmethod
     def init_app(app):

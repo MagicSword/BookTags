@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+   #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
     example.py
@@ -15,7 +15,7 @@
 #     the current directory is changed with os.chdir(), an incorrect
 #     path will be displayed.
 
-from flask import render_template,flash, redirect, url_for, current_app,  abort,request
+from flask import render_template,flash, redirect, url_for, current_app,  abort,request, make_response
 from flask_login import login_required, current_user
 from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, PostForm
@@ -43,12 +43,12 @@ def index():
         query = current_user.followed_posts
     else:
         query = Post.query
-    pagination = Post.query.order_by(Post.timestamp.desc()).paginate(
+    pagination = query.order_by(Post.timestamp.desc()).paginate(
         page, per_page=current_app.config['PROJECT_POSTS_PER_PAGE'],
         error_out=False)
     posts = pagination.items
     return render_template('index.html', form=form, posts=posts,
-                           pagination=pagination)
+                           show_followed=show_followed, pagination=pagination)
 
 
 @main.route('/user/<username>')
@@ -136,13 +136,14 @@ def edit(id):
 def follow(username):
     user = User.query.filter_by(username=username).first()
     if user is None:
-        flash('Invalid user.')
+        flash('Invalid user.','danger')
         return redirect(url_for('.index'))
     if current_user.is_following(user):
-        flash('You are already following this user.')
+        flash('You are already following this user.','warning')
         return redirect(url_for('.user', username=username))
     current_user.follow(user)
-    flash('You are now following %s.' % username)
+    db.session.commit()
+    flash('You are now following %s.' % username,'success')
     return redirect(url_for('.user', username=username))
 
 
@@ -152,13 +153,14 @@ def follow(username):
 def unfollow(username):
     user = User.query.filter_by(username=username).first()
     if user is None:
-        flash('Invalid user.')
+        flash('Invalid user.','danger')
         return redirect(url_for('.index'))
     if not current_user.is_following(user):
-        flash('You are not following this user.')
+        flash('You are not following this user.','warning')
         return redirect(url_for('.user', username=username))
     current_user.unfollow(user)
-    flash('You are not following %s anymore.' % username)
+    db.session.commit()
+    flash('You are not following %s anymore.' % username, 'success')
     return redirect(url_for('.user', username=username))
 
 
@@ -166,11 +168,11 @@ def unfollow(username):
 def followers(username):
     user = User.query.filter_by(username=username).first()
     if user is None:
-        flash('Invalid user.')
+        flash('Invalid user.','danger')
         return redirect(url_for('.index'))
     page = request.args.get('page', 1, type=int)
     pagination = user.followers.paginate(
-        page, per_page=current_app.config['FLASKY_FOLLOWERS_PER_PAGE'],
+        page, per_page=current_app.config['PROJECT_FOLLOWERS_PER_PAGE'],
         error_out=False)
     follows = [{'user': item.follower, 'timestamp': item.timestamp}
                for item in pagination.items]
@@ -183,11 +185,11 @@ def followers(username):
 def followed_by(username):
     user = User.query.filter_by(username=username).first()
     if user is None:
-        flash('Invalid user.')
+        flash('Invalid user.','danger')
         return redirect(url_for('.index'))
     page = request.args.get('page', 1, type=int)
     pagination = user.followed.paginate(
-        page, per_page=current_app.config['FLASKY_FOLLOWERS_PER_PAGE'],
+        page, per_page=current_app.config['PROJECT_FOLLOWERS_PER_PAGE'],
         error_out=False)
     follows = [{'user': item.followed, 'timestamp': item.timestamp}
                for item in pagination.items]

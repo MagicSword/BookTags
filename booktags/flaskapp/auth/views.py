@@ -77,7 +77,7 @@ def register():
         token = user.generate_confirmation_token()
         send_email(user.email, 'Confirm Your Account',
                    'auth/email/confirm', user=user, token=token)
-        flash('A confirmation email has been sent to you by email.','info')
+        flash('A confirmation email has been sent to you by email.','success')
         return redirect(url_for('auth.login'))
     return render_template('auth/register.html', form=form)
 
@@ -100,7 +100,7 @@ def resend_confirmation():
     token = current_user.generate_confirmation_token()
     send_email(current_user.email, 'Confirm Your Account',
                'auth/email/confirm', user=current_user, token=token)
-    flash('A new confirmation email has been sent to you by email.','info')
+    flash('A new confirmation email has been sent to you by email.','success')
     return redirect(url_for('main.index'))
 
 
@@ -133,7 +133,7 @@ def password_reset_request():
                        'auth/email/reset_password',
                        user=user, token=token)
         flash('An email with instructions to reset your password has been '
-              'sent to you.','info')
+              'sent to you.','success')
         return redirect(url_for('auth.login'))
     return render_template('auth/reset_password.html', form=form)
 
@@ -165,7 +165,7 @@ def change_email_request():
                        'auth/email/change_email',
                        user=current_user, token=token)
             flash('An email with instructions to confirm your new email '
-                  'address has been sent to you.','info')
+                  'address has been sent to you.','success')
             return redirect(url_for('main.index'))
         else:
             flash('Invalid email or password.','danger')
