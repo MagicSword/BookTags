@@ -20,7 +20,7 @@ import click
 from flask_migrate import Migrate
 
 from .flaskapp import db, create_app
-from .flaskapp.model.models import BookMain, User, Role, Follow, Permission, Post
+from .flaskapp.model.models import BookMain, User, Role, Follow, Permission, Post, Comment
 
 
 # --------------------------------------------------------- common routines
@@ -32,7 +32,7 @@ migrate = Migrate(main,db)
 
 @main.shell_context_processor
 def make_shell_context():
-    return dict(db=db, BookMain=BookMain, User=User, Role=Role, Follow=Follow, Permission=Permission, Post=Post)
+    return dict(db=db, BookMain=BookMain, User=User, Role=Role, Follow=Follow, Permission=Permission, Post=Post, Comment=Comment)
 # manager.add_command("shell", Shell(make_context=make_shell_context))
 
 

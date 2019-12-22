@@ -45,9 +45,10 @@ class Config(object):
     # end Flask mail setting
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     PROJECT_ADMIN = os.environ.get('PROJECT_ADMIN')
-    #PROJECT_ADMIN = "booktags@example.com"
+    # PROJECT_ADMIN = "booktags@example.com"
     PROJECT_POSTS_PER_PAGE = 20
     PROJECT_FOLLOWERS_PER_PAGE = 50
+    PROJECT_COMMENTS_PER_PAGE = 30
 
 
     @staticmethod
