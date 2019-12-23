@@ -23,6 +23,11 @@ from flask_migrate import Migrate, upgrade
 from .flaskapp import db, create_app
 from .flaskapp.model.models import BookMain, User, Role, Follow, Permission, Post, Comment
 
+from dotenv import load_dotenv
+
+dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+if os.path.exists(dotenv_path):
+    load_dotenv(dotenv_path)
 
 # --------------------------------------------------------- common routines
 

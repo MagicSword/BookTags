@@ -146,6 +146,18 @@ class DockerConfig(ProductionConfig):
         app.logger.addHandler(file_handler)
 
 
+class UnixConfig(ProductionConfig):
+    @classmethod
+    def init_app(cls, app):
+        ProductionConfig.init_app(app)
+
+        # log to syslog
+        import logging
+        from logging.handlers import SysLogHandler
+        syslog_handler = SysLogHandler()
+        syslog_handler.setLevel(logging.INFO)
+        app.logger.addHandler(syslog_handler)
+
 
 
 config = {
@@ -154,6 +166,7 @@ config = {
     'production': ProductionConfig,
     'heroku': HerokuConfig,
     'docker': DockerConfig,
+    'unix': UnixConfig,
 
     'default': DevelopmentConfig
 }
