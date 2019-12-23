@@ -21,7 +21,7 @@ from flask_moment import Moment
 from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
-#from flask_migrate import Migrate
+
 #from .main.navbar import nav
 from flask_pagedown import PageDown
 from ..config_proj import config
@@ -31,10 +31,11 @@ bootstrap = Bootstrap()
 moment = Moment()
 mail = Mail()
 db = SQLAlchemy()
-#migrate = Migrate()
+pagedown = PageDown()
+
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
-pagedown = PageDown()
+
 
 def create_app(config_name):
     # Initialize Flask instance
@@ -45,13 +46,13 @@ def create_app(config_name):
 
     # Initialize Nav
     # TODO: fix flask_navbar
+    login_manager.init_app(app)
     bootstrap.init_app(app)
+    pagedown.init_app(app)
     moment.init_app(app)
     mail.init_app(app)
     db.init_app(app)
-    #migrate.init_app(app,db)
-    login_manager.init_app(app)
-    pagedown.init_app(app)
+
 
     # Initialize  Blueprint
     # main blueprint
@@ -66,5 +67,4 @@ def create_app(config_name):
 
     # 指派 路由 ，錯誤頁面
 
-    # return app
     return app
