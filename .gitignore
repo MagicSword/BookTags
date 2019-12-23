@@ -5,6 +5,7 @@
 ### User
 
 tmp/backup/*
+booktags/tmp/*
 
 
 ### PyCharm ###

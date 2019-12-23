@@ -76,7 +76,23 @@ def test(coverage, test_names):
         print('HTML version: ' % html_path)
         COV.erase()
 
-
+@main.cli.command()
+@click.option('--length', default=25,
+              help='Number of functions to include in the profiler report.')
+@click.option('--profile-dir', default=None,
+              help='Directory where profiler data files are saved.')
+def profile(length, profile_dir):
+    """Start the application under the code profiler."""
+    from werkzeug.contrib.profiler import ProfilerMiddleware
+    # basedir = os.path.abspath(os.path.dirname(__file__))
+    # profiledir = os.path.join(basedir, 'tmp/profile')
+    main.wsgi_app = ProfilerMiddleware(main.wsgi_app, restrictions=[length],profile_dir=profile_dir)
+    # Q:  Warning: Silently ignoring app.run() because the application is run from the flask
+    #       command line executable.  Consider putting app.run() behind
+    #       an if __name__ == "__main__" guard to silence this warning.
+    # A: https://github.com/pallets/flask/pull/2781
+    os.environ["FLASK_RUN_FROM_CLI"] = "false"
+    main.run(debug=False)
 
 
 @main.cli.command()
@@ -113,4 +129,4 @@ def list_routes():
 #     print("flask run here")
 
 if __name__ == '__main__':
-    pass
+   main.run(debug=False)
