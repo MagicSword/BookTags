@@ -79,6 +79,7 @@ class TestingConfig(Config):
     DB_name = "booktags-test.sqlite"
     SQLALCHEMY_DATABASE_URI =  os.environ.get('TEST_DATABASE_URL') or \
                                "sqlite:///" + os.path.join(Project_HOME, DB_name)
+    WTF_CSRF_ENABLED = False
 
 
 class ProductionConfig(Config):
