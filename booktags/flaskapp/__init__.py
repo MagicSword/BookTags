@@ -53,6 +53,11 @@ def create_app(config_name):
     mail.init_app(app)
     db.init_app(app)
 
+    if app.config['SSL_REDIRECT']:
+        from flask_sslify import SSLify
+        sslify = SSLify(app)
+
+
 
     # Initialize  Blueprint
     # main blueprint
