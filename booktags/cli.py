@@ -18,7 +18,7 @@
 import os
 import sys
 import click
-from flask_migrate import Migrate
+from flask_migrate import Migrate, upgrade
 
 from .flaskapp import db, create_app
 from .flaskapp.model.models import BookMain, User, Role, Follow, Permission, Post, Comment
@@ -92,7 +92,21 @@ def profile(length, profile_dir):
     #       an if __name__ == "__main__" guard to silence this warning.
     # A: https://github.com/pallets/flask/pull/2781
     os.environ["FLASK_RUN_FROM_CLI"] = "false"
-    main.run(debug=False)
+    main.run()
+
+
+@main.cli.command()
+def deploy():
+    """Run deployment tasks."""
+    # migrate database to latest revision
+    upgrade()
+
+    # create or update user roles
+    Role.insert_roles()
+
+    # ensure all users are following themselves
+    User.add_self_follows()
+
 
 
 @main.cli.command()
