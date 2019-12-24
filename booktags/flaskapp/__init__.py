@@ -37,6 +37,7 @@ login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
 
 
+
 def create_app(config_name):
     # Initialize Flask instance
     app = Flask(__name__)
@@ -55,7 +56,9 @@ def create_app(config_name):
 
     if app.config['SSL_REDIRECT']:
         from flask_sslify import SSLify
+
         sslify = SSLify(app)
+
 
 
 

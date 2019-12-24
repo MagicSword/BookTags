@@ -148,4 +148,4 @@ def list_routes():
 #     print("flask run here")
 
 if __name__ == '__main__':
-   main.run(debug=False)
+   main.run(debug=True)

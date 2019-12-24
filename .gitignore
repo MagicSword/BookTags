@@ -4,6 +4,7 @@
 
 ### User
 
+tmp/*
 tmp/backup/*
 booktags/tmp/*
 

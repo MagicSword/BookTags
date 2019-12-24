@@ -19,8 +19,10 @@ import os
 
 from .logger import create_logger
 
-USER_HOME = os.path.expanduser("~")
-Project_HOME = os.path.join(USER_HOME, ".booktags")
+# USER_HOME = os.path.expanduser("~")
+# Project_HOME = os.path.join(USER_HOME, ".booktags")
+basedir = os.path.abspath(os.path.dirname(__file__))
+Project_HOME = basedir
 # SQL_ALCHEMY_CONN_PGSQL = "postgres+psycopg2://miller:ming22d@localhost:5432/booktags"
 
 
@@ -116,6 +118,7 @@ class ProductionConfig(Config):
 
 class HerokuConfig(ProductionConfig):
     SSL_REDIRECT = True if os.environ.get('DYNO') else False
+    # DATABASE_URL = "postgresql-curly-49927"
 
     @classmethod
     def init_app(cls, app):

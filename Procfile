@@ -1,1 +1,1 @@
-web: gunicorn flasky:app
+web: waitress-serve --port=8000 --url-scheme=https booktags.cli:main
