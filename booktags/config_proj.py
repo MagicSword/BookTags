@@ -23,7 +23,7 @@ from .logger import create_logger
 # Project_HOME = os.path.join(USER_HOME, ".booktags")
 basedir = os.path.abspath(os.path.dirname(__file__))
 Project_HOME = basedir
-# SQL_ALCHEMY_CONN_PGSQL = "postgres+psycopg2://miller:ming22d@localhost:5432/booktags"
+# SQL_ALCHEMY_CONN_PGSQL = "postgres+psycopg2://user:password@localhost:5432/booktags"
 
 
 

@@ -1,12 +1,12 @@
 FROM python:3.6-alpine
 
-ENV FLASK_APP flasky.py
+ENV FLASK_APP booktags.cli
 ENV FLASK_CONFIG production
 
-RUN adduser -D flasky
-USER flasky
+RUN adduser -D booktags
+USER booktags
 
-WORKDIR /home/flasky
+WORKDIR /home/booktags
 
 COPY requirements requirements
 RUN python -m venv venv

@@ -15,20 +15,25 @@
 #     the current directory is changed with os.chdir(), an incorrect
 #     path will be displayed.
 
-import unittest
+import abc
 
 
 # --------------------------------------------------------- common routines
 
-class TestAddition(unittest.TestCase):
-    def setUP(selfs):
-        print("Setting up the test")
-    def tearDown(self):
-        print("Tearing down the test")
-    def test_twoPlusTwo(self):
-        total = 2 + 2
-        self.assertEqual(4,total)
 
+from tests.contains import contains
+from ward import expect, test
+
+
+@test("contains returns True when item is in list")
+def _():
+    list_of_ints = list(range(100000))
+    result = contains(list_of_ints, 5)
+    expect(result).equals(True)
+
+@test("1 plus 2 equals 3")
+def _():
+    expect(1 + 2).equals(3)
 
 if __name__ == '__main__':
-    unittest.main()
+    pass

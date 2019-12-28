@@ -39,3 +39,8 @@ set FLASK_DEBUG=1
 
 * `/docs/conf.py`
 * https://opensource.com/article/19/11/document-python-sphinx
+
+# 20191225
+
+* [ward](https://github.com/darrenburns/ward)
+* `E:\_Documents\GitHub\PyCharm_Workspace\BookTags>ward`

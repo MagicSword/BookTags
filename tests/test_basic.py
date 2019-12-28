@@ -18,7 +18,6 @@
 
 import unittest
 from flask import current_app
-#from ..booktags.flaskapp import create_app, db
 from  booktags.flaskapp import db, create_app
 
 # --------------------------------------------------------- common routines

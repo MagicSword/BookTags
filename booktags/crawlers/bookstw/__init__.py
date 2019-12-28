@@ -15,20 +15,11 @@
 #     the current directory is changed with os.chdir(), an incorrect
 #     path will be displayed.
 
-import unittest
+
 
 
 # --------------------------------------------------------- common routines
 
-class TestAddition(unittest.TestCase):
-    def setUP(selfs):
-        print("Setting up the test")
-    def tearDown(self):
-        print("Tearing down the test")
-    def test_twoPlusTwo(self):
-        total = 2 + 2
-        self.assertEqual(4,total)
-
 
 if __name__ == '__main__':
-    unittest.main()
+    pass

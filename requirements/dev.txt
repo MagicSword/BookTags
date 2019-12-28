@@ -11,3 +11,7 @@ urllib3==1.25.7
 selenium==3.141.0
 chromedriver==2.24.1
 waitress==1.4.0
+colorama==0.4.1
+dataclasses==0.6
+termcolor==1.1.0
+ward==0.21.0a0
