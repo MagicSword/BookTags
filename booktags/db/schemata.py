@@ -25,7 +25,6 @@ ThingSchema = {
     "name": {"type": "string", "required": True, "nullable": True},
     "url": {"type": "string", "required": True, "nullable": True},
     "image": {"type": "string", "required": True, "nullable": True},
-    "isbn": {"type": "string", "required": True, "nullable": True},
     "identifier": {"type": "string", "required": True, "nullable": True},
     "description": {"type": "string", "required": True, "nullable": True},
     "alternateName": {"type": "string", "required": True, "nullable": True},
@@ -48,7 +47,7 @@ CreativeWorkSchema.update({
     "keywords":  {"type": "string", "required": True, "nullable": True},
     "publisher":  {"type": "string", "required": True, "nullable": True},
     "review":  {"type": "string", "required": True, "nullable": True},
-    "cmmment":  {"type": "string", "required": True, "nullable": True},
+    "comment":  {"type": "string", "required": True, "nullable": True},
     "translationOfWork":  {"type": "string", "required": True, "nullable": True},
     "translator":  {"type": "string", "required": True, "nullable": True},
     "workTranslation":  {"type": "string", "required": True, "nullable": True}
@@ -85,6 +84,7 @@ StoreBookSchema.update({
     "printingColor" : {"type": "string", "required": False, "nullable": True}
 })
 
+
 LibraryBookSchema = copy.deepcopy(BookSchema)
 LibraryBookSchema.update({
     "num_category": {"type": "string", "required": False, "nullable": True},
@@ -92,7 +92,6 @@ LibraryBookSchema.update({
     "keepsite": {"type": "string", "required": False, "nullable": True},
     "numberOfCopies": {"type": "string", "required": False, "nullable": True}
 })
-
 
 
 

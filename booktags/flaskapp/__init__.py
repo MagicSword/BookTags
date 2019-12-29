@@ -22,6 +22,9 @@ from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 
+from flask_marshmallow import Marshmallow
+
+
 #from .main.navbar import nav
 from flask_pagedown import PageDown
 from ..config_proj import config
@@ -32,6 +35,7 @@ moment = Moment()
 mail = Mail()
 db = SQLAlchemy()
 pagedown = PageDown()
+ma = Marshmallow()
 
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
@@ -53,6 +57,7 @@ def create_app(config_name):
     moment.init_app(app)
     mail.init_app(app)
     db.init_app(app)
+    ma.init_app(app)
 
     if app.config['SSL_REDIRECT']:
         from flask_sslify import SSLify

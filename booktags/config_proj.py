@@ -19,7 +19,7 @@ import os
 
 from .logger import create_logger
 
-# USER_HOME = os.path.expanduser("~")
+USER_HOME = os.path.expanduser("~")
 # Project_HOME = os.path.join(USER_HOME, ".booktags")
 basedir = os.path.abspath(os.path.dirname(__file__))
 Project_HOME = basedir
