@@ -19,19 +19,19 @@
             <div class="post-footer">
                 {% if current_user == post.author %}
                     <a href="{{ url_for('.edit', id=post.id) }}">
-                        <span class="label label-primary"><span class="glyphicon glyphicon-edit"></span> Edit</span>
+                        <span class="label label-primary"><i class="fas fa-edit"></i> Edit</span>
                     </a>
                 {% elif current_user.is_administrator() %}
                     <a href="{{ url_for('.edit', id=post.id) }}">
-                        <span class="label label-danger"><span class="glyphicon glyphicon-pencil"></span> Edit [Admin]</span>
+                        <span class="label label-danger"><i class="fas fa-user-edit"></i> Edit [Admin]</span>
                     </a>
                 {% endif %}
 
                 <a href="{{ url_for('.post', id=post.id) }}">
-                    <span class="label label-default"><span class="glyphicon glyphicon-link"></span> Permalink</span>
+                    <span class="label label-default"><i class="fas fa-link"></i> Permalink</span>
                 </a>
                 <a href="{{ url_for('.post', id=post.id) }}#comments">
-                    <span class="label label-primary">{{ post.comments.count() }} <span class="glyphicon glyphicon-comment"></span> Comments</span>
+                    <span class="label label-primary">{{ post.comments.count() }} <i class="fas fa-comment"></i> Comments</span>
                 </a>
             </div>
         </div>
