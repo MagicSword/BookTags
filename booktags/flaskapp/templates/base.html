@@ -3,10 +3,19 @@
 {% block title %}Booktags{% endblock %}
 
 {% block head %}
-{{ super() }}
+
 <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
 <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+
+
+{%- block styles %}
+<!-- Bootstrap -->
+<!--<link href="{{bootstrap_find_resource('css/bootstrap.css', cdn='bootstrap')}}" rel="stylesheet">-->
+<link href="{{ url_for('static',filename='css/bootstrap.min.css')}}" rel="stylesheet">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.9/css/all.css" integrity="sha384-5SOiIsAziJl6AWe0HWRKTXlfcSHKmYV4RBF18PPJ173Kzn7jzMyFuTtk8JA7QQG1" crossorigin="anonymous"></link>
+<!--https://use.fontawesome.com/releases/v5.12.0/css/all.css-->
 <link href="{{ url_for('static',filename='css/base.css')}}" rel="stylesheet">
+{%- endblock styles %}
 {% endblock %}
 
 
@@ -21,26 +30,28 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="{{ url_for('main.index') }}"><span class="glyphicon glyphicon-book"></span> Booktags</a>
+            <a class="navbar-brand" href="{{ url_for('main.index') }}"><i class="fas fa-home"></i> Booktags</a>
         </div>
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-                <li><a href="{{ url_for('main.index') }}"><span class="glyphicon glyphicon-home"></span> Home</a></li>
-                {% if current_user.is_authenticated %}
-                <li><a href="{{ url_for('main.user', username=current_user.username) }}"><span class="glyphicon glyphicon-user"></span> Profile</a></li>
-                {% endif %}
+                <li><a href="{{ url_for('main.index') }}"><i class="far fa-comment"></i> MicroBlog</a></li>
+                <li><a href="{{ url_for('main.index') }}"><i class="fas fa-book"></i> Books</a></li>
+
             </ul>
             <ul class="nav navbar-nav navbar-right">
+                {% if current_user.is_authenticated %}
+                <li><a href="{{ url_for('main.user', username=current_user.username) }}"><i class="far fa-user"></i> Profile</a></li>
+                {% endif %}
                 {% if current_user.can(Permission.MODERATE) %}
                 <li><a href="{{ url_for('main.moderate') }}"> Moderate Comments</a></li>
                 {% endif %}
                 {% if current_user.is_authenticated %}
                 <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-list-alt"></span> Account <b class="caret"></b></a>
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="far fa-list-alt"></i> Account <b class="caret"></b></a>
                     <ul class="dropdown-menu">
-                        <li><a href="{{ url_for('auth.change_password') }}"><span class="glyphicon glyphicon-asterisk"></span> Change Password</a></li>
-                        <li><a href="{{ url_for('auth.change_email_request') }}"><span class="glyphicon glyphicon-send"></span> Change Email</a></li>
-                        <li><a href="{{ url_for('auth.logout') }}"><span class="glyphicon glyphicon-log-out"></span> Log Out </a></li>
+                        <li><a href="{{ url_for('auth.change_password') }}"><i class="fas fa-key"></i> Change Password</a></li>
+                        <li><a href="{{ url_for('auth.change_email_request') }}"><i class="far fa-envelope"></i> Change Email</a></li>
+                        <li><a href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt"></i> Log Out </a></li>
                     </ul>
                 </li>
                 {% else %}
