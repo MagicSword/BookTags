@@ -15,3 +15,4 @@ colorama==0.4.1
 dataclasses==0.6
 termcolor==1.1.0
 ward==0.21.0a0
+flask-debugtoolbar==0.10.1

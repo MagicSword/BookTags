@@ -47,23 +47,19 @@ def test_search_from_isbn():
     """
     spider = bookstw_api()
     spider.search_isbn('9789578423886')
-    result_id = ['0010823875','E050048572']
-    expect(spider.bookstw_result_id).equals(result_id)
-
-def test_get_product():
-    """
-    :param:
-    :return:
-    """
+    result_id = set()
+    result_id.update(['0010823875','E050048572'])
+    expect(spider.prod_ids).equals(result_id)
 
 
-@test("bookstw.get_product returns the correct book given an ISBN")
+
+@test("bookstw.get_product returns the correct book given an ID")
 def _(
-   api=bookstw_api,
-   isbn=each("9789863125914", "9787559637949", "9781947194373"),
+   spider=bookstw_api,
+   id=each("0010834816", "CN11708291", "F014313133"),
    name=each("Python 技術者們", "盜墓筆記十年", "A Scandal in Japan")):
-   book: BooksTwCrawler = api.get_product(isbn)
-   expect(book.name).equals(name)
+   spider.get_product(id)
+   expect(spider.name).equals(name)
 
 
 if __name__ == '__main__':

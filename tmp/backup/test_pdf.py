@@ -32,7 +32,7 @@ from reportlab.pdfbase.ttfonts import TTFont
 pdfmetrics.registerFont(TTFont('Vera', 'Vera.ttf'))
 pdfmetrics.registerFont(TTFont('cwTeXQHeiBd', 'C:/Windows/Fonts/cwTeXQHei-Bold.ttf'))
 
-canvas = Canvas('test_pdf.pdf')
+# canvas = Canvas('test_pdf.pdf')
 
 canvas.setFont('cwTeXQHeiBd', 32)
 canvas.drawString(10, 150, "最後一個知   300   3441   2017")

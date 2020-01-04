@@ -14,11 +14,11 @@
 #   - If the __file__ attribute on a module is a relative path and
 #     the current directory is changed with os.chdir(), an incorrect
 #     path will be displayed.
-
-# import os
-# from flask_sqlalchemy import SQLAlchemy
-
 # --------------------------------------------------------- common routines
 
+from flask import Blueprint
+# --------------------------------------------------------- common routines
 
+book = Blueprint('book', __name__)
 
+from . import views

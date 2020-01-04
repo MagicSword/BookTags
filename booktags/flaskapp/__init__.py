@@ -21,7 +21,7 @@ from flask_moment import Moment
 from flask_mail import Mail
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
-
+from flask_debugtoolbar import DebugToolbarExtension
 from flask_marshmallow import Marshmallow
 
 
@@ -36,6 +36,7 @@ mail = Mail()
 db = SQLAlchemy()
 pagedown = PageDown()
 ma = Marshmallow()
+toolbar = DebugToolbarExtension()
 
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
@@ -58,6 +59,7 @@ def create_app(config_name):
     mail.init_app(app)
     db.init_app(app)
     ma.init_app(app)
+    toolbar.init_app(app)
 
     if app.config['SSL_REDIRECT']:
         from flask_sslify import SSLify
@@ -77,6 +79,10 @@ def create_app(config_name):
     # api blueprint
     from .api import api as api_blueprint
     app.register_blueprint(api_blueprint, url_prefix='/api/v1')
+    # book blueprint
+    from .book import book as book_blueprint
+    app.register_blueprint(book_blueprint, url_prefix='/book')
+
 
     # 指派 路由 ，錯誤頁面
 

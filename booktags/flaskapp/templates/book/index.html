@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block title %}Booktags - Book{% endblock %}
+
+{% block page_content %}
+
+<div class="book-tabs">
+    <ul class="nav nav-tabs">
+        <li class="nav-item" class="active"><a class="nav-link" href="{{ url_for('book.index') }}">Index</a></li>
+
+        <li class="nav-item" class="active"><a class="nav-link" href="{{ url_for('book.list_book') }}">List Books</a></li>
+    </ul>
+
+
+
+<table class="table table-striped table-hover table-responsive">
+
+    <thead>
+    <tr align="center">
+
+        <th> id </th>
+        <th> isbn </th>
+        <th> title_short </th>
+        <th> title </th>
+        <th> catalogue </th>
+        <th> cutter </th>
+        <th> pub_year </th>
+
+    </tr>
+    </thead>
+    <tbody>
+    {% for book in books %}
+    <tr>
+        <td> {{ book.id }} </td>
+        <td> {{ book.isbn }} </td>
+        <td> {{ book.title_short }} </td>
+        <td><a href="{{ url_for('book.edit_book', id = book.id) }}"> {{ book.title }} </a></td>
+        <td> {{ book.catalogue }} </td>
+        <td> {{ book.cutter }} </td>
+        <td> {{ book.pub_year }} </td>
+
+
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+</div>
+
+{% if pagination %}
+<div class="pagination container-fluid text-center">
+    {{ macros.pagination_widget(pagination, '.index') }}
+</div>
+{% endif %}
+
+{% endblock %}

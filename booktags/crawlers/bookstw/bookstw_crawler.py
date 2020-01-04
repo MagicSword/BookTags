@@ -22,6 +22,7 @@ import abc
 
 import os
 import re
+import sys
 import datetime
 import pandas
 import requests
@@ -29,7 +30,7 @@ from bs4 import BeautifulSoup
 
 
 from ..base import BaseCrawler
-from ..base import baseschema
+
 """
 https://search.books.com.tw/search/query/key/9789578423886/
 
@@ -45,11 +46,6 @@ single book url
 https://www.books.com.tw/products/0010823875
 
 """
-bookstw_schema = baseschema
-bookstw_schema.update(dict(discount_price={"type": "int", "required": False, "nullable": True},
-                           discount_rate={"type": "float", "required": False, "nullable": True},
-                           discount_date={"type": "date", "required": False, "nullable": True},
-                           pub_date={"type": "date", "required": False, "nullable": True}))
 
 # bookstw pub_date
 # def to_date(s):
@@ -68,7 +64,7 @@ class BooksTwCrawler(BaseCrawler):
     protocol = "https:"
 
     def __init__(self) -> object:
-        self.bookstw_result_id = []
+        self.prod_ids = set()
 
     def search_isbn(self, isbn: str) -> list:
         """
@@ -77,17 +73,18 @@ class BooksTwCrawler(BaseCrawler):
         :return: bookstw_id list
         """
         #empty result list
-        self.bookstw_result_id = []
+        temp_ids = set()
         target_url = f"{self.search_domain}{self.search_path}{isbn}"
         search_res = requests.get(target_url)
         search_soup = BeautifulSoup(search_res.text,"html.parser")
         result_block = search_soup.find('ul', "searchbook")
         for item in result_block.find_all('li', "item"):
             for a in item.find_all('a', {'rel': 'mid_name'}):
-                print(f"item url:{self.protocol}{a['href']}")
-                id = re.findall(r"item/([a-zA-Z0-9]\d+)", a['href'])
-                print(f"item id: {a['href']}")
-                self.bookstw_result_id.append(id[0])
+                # print(f"item url:{self.protocol}{a['href']}")
+                id = re.findall(r"item[/](.*?)[/]", a['href'])
+                print(f"item id: {id}")
+                temp_ids.update(id)
+        self.prod_ids.update(temp_ids)
 
 
     def search_keyword(self, title: str) -> list:
@@ -161,15 +158,25 @@ class BooksTwCrawler(BaseCrawler):
                 discount_date
                 discount_rate
         """
+
         url = f"{self.base_domain}/products/{id}"
-        res = requests.get(url)
+
+        try:
+            res = requests.get(url)
+            res.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            print(err)
+            sys.exit(1)
+
         soup = BeautifulSoup(res.text,"html.parser")
 
         # TODO: pass meta['og:description']  , hard to parse
 
         ############## meta block
         image = soup.find("meta", property="og:image")["content"]
-        url_image = re.search(r'(https:\/\/www).*.*(jpg)', image).group(0)
+        print(type(image))
+        image_tmp = soup.find_all('meta',attrs={"property":"og:image"})[0]
+        url_image = re.search(r'(https:\/\/www).*.*(jpg)', image_tmp).group(0)
         url_product = soup.find("meta", property="og:url")["content"]
 
         ##############  parse block
@@ -227,7 +234,7 @@ class BooksTwCrawler(BaseCrawler):
         # summary
 
         summary = soup.select("div.container_24.main_wrap.clearfix > div > div:nth-child(3) > div.grid_19.alpha > div:nth-child(1) > div")[0].text.strip()
-        summary_author = soup.select("div.container_24.main_wrap.clearfix > div > div:nth-child(3) > div.grid_19.alpha > div:nth-child(2) > div")[0].text.strip()
+        about_author = soup.select("div.container_24.main_wrap.clearfix > div > div:nth-child(3) > div.grid_19.alpha > div:nth-child(2) > div")[0].text.strip()
         toc = soup.select('#M201105_0_getProdTextInfo_P00a400020009_h2')[0].text.strip()
 
 

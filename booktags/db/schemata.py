@@ -69,7 +69,7 @@ BookSchema.update({
 "price": {"type": "integer", "required": False, "nullable": True},
 "series": {"type": "string", "required": False, "nullable": True},
 "summary": {"type": "string", "required": False, "nullable": True},
-"summaryAuthor": {"type": "string", "required": False, "nullable": True},
+"aboutAuthor": {"type": "string", "required": False, "nullable": True},
 "toc": {"type": "string", "required": False, "nullable": True}
 })
 

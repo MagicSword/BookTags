@@ -52,6 +52,7 @@ class Config(object):
     # PROJECT_ADMIN = "booktags@example.com"
     PROJECT_POSTS_PER_PAGE = 20
     PROJECT_FOLLOWERS_PER_PAGE = 50
+    PROJECT_BOOKS_PER_PAGE = 50
     PROJECT_COMMENTS_PER_PAGE = 30
     PROJECT_SLOW_DB_QUERY_TIME = 0.5
 
@@ -77,6 +78,14 @@ class DevelopmentConfig(Config):
     DB_name = "booktags-dev.sqlite"
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
                               "sqlite:///" + os.path.join(Project_HOME, DB_name)
+    # debug toolbar
+    DEBUG_TB_ENABLED=True
+    # DEBUG_TB_HOSTS=
+    # DEBUG_TB_INTERCEPT_REDIRECTS=
+    # DEBUG_TB_PANELS=
+    # DEBUG_TB_PROFILER_ENABLED=
+    # DEBUG_TB_TEMPLATE_EDITOR_ENABLED=
+
 
 
 class TestingConfig(Config):

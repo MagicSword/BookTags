@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}Booktags - Edit Book{% endblock %}
+
+{% block page_content %}
+<div class="page-header">
+
+<!--    {% from "_formhelpers.html" import render_field %}-->
+
+
+<!--    <form action="" class="form form-horizontal" method="post" role="form">-->
+
+<!--&lt;!&ndash;          <legend>Book Edit </legend>&ndash;&gt;-->
+<!--                    <div class="input-group input-group-lg" style="float: right">-->
+<!--                    <button type="reset" class="btn btn-default">Cancel</button>-->
+<!--                    <button type="submit" class="btn btn-primary">Submit</button>-->
+
+<!--                  </div>-->
+<!--            {% for field in form %}-->
+
+<!--                {% if field.name=="csrf_token" %}-->
+<!--                        {{form.hidden_tag()}}-->
+<!--                {% elif field.name=='id' %}-->
+
+<!--                    <div class="input-group input-group-lg">-->
+<!--                        <span class="input-group-addon" id="basic-addon1">{{ field.name }}</span>-->
+<!--                        <input type="text" class="form-control" placeholder="{{ field.data }}" aria-describedby="basic-addon1" readonly>-->
+<!--                    </div>-->
+
+<!--                {% elif field.name=='submit' %}-->
+<!--                {{ field() }}-->
+
+<!--                {% else %}-->
+<!--                    <div class="input-group input-group-lg form-control-label" for="{{ field.name }}">-->
+<!--                        <span class="input-group-addon" id="basic-addon1">{{ field.name }}</span>-->
+<!--                        <input id="{{ field.name }}" name="{{ field.name }}" value="{{ field.data }}" type="text" class="form-control" aria-describedby="basic-addon1">-->
+
+<!--                    </div>-->
+<!--                {% endif%}-->
+
+<!--            {% endfor %}-->
+
+
+<!--    </form>-->
+
+    {{ wtf.quick_form(form,form_type="inline ",extra_classes="form-horizontal",role="form") }}
+
+</div>
+{% endblock %}

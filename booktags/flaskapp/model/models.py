@@ -40,9 +40,9 @@ class Permission:
     ADMIN = 16
 
 class BookMain(db.Model):
-    __tablename__ = "book_main"
+    __tablename__ = "bookmain"
 
-    id = db.Column(db.String(ID_LEN), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     isbn = db.Column(db.String(ID_LEN), index=True)
     title_short = db.Column(db.String(ID_LEN))
     title = db.Column(db.String(STR_LEN))
@@ -60,6 +60,10 @@ class BookMain(db.Model):
 
     def __repr__(self):
         return "<{} : (id = '{}', isbn = '{}' )>".format(self.__class__.__name__,self.id,self.isbn)
+
+    @classmethod
+    def get_all_book(cls):
+        return cls.query.all()
 
 class Role(db.Model):
     __tablename__ = 'roles'
