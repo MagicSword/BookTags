@@ -19,6 +19,9 @@ import json
 from datetime import datetime
 from cerberus import Validator
 
+import requests
+from bs4 import BeautifulSoup
+
 
 # --------------------------------------------------------- common routines
 
@@ -44,16 +47,53 @@ class BaseCrawler(object):
     def __init__(self):
         self.books = []
 
-    def get_books(self):
+    def get_book(self):
         pass
 
     def export(self, filename):
-        v = BookValidator(schema)
-        for book in self.books:
-            v.validate(book)
-            if v.errors:
-                for key, val in v.errors.items():
-                    print("{} - {}: {}".format(book["name"], key, val))
+        # v = BookValidator(schema)
+        # for book in self.books:
+        #     v.validate(book)
+        #     if v.errors:
+        #         for key, val in v.errors.items():
+        #             print("{} - {}: {}".format(book["name"], key, val))
 
         with open(filename, "w") as f:
             f.write(json.dumps(self.books, indent=4, sort_keys=True))
+
+    def get_soup(self, url: str) -> object:
+        """
+
+        :param url:
+        :return: soup
+        """
+        # url = f"{self.base_domain}/products/{url}"
+
+
+        try:
+            res = requests.get(url)
+            res.raise_for_status()
+
+            # if "請先登入會員" in res.text:
+            #     raise LoginRequireError
+            #     print("Login please")
+
+        except requests.exceptions.HTTPError as errh:
+            print("Http Error:", errh)
+        except requests.exceptions.ConnectionError as errc:
+            print("Error Connecting:", errc)
+        except requests.exceptions.Timeout as errt:
+            print("Timeout Error:", errt)
+        # except LoginRequireError as errl:
+        #     print("Login required", errl)
+        #     sys.exit(1)
+        except requests.exceptions.RequestException as err:
+            print("OOps: Something Else", err)
+        finally:
+            pass
+
+        soup = BeautifulSoup(res.text,"html.parser")
+
+        # TODO : functional programming or?
+        # self.cur_soup = soup
+        return soup

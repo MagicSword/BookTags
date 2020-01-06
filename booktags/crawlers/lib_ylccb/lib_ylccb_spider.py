@@ -17,11 +17,35 @@
 
 import abc
 
+from booktags.crawlers.base import BaseCrawler
+
 
 # --------------------------------------------------------- common routines
 
 def what():
     pass
+
+
+class LibYlcCrawler(BaseCrawler):
+    """
+    Search 雲林縣公共圖書館	    http://library.ylccb.gov.tw/webpacIndex.jsp
+    1. regular data
+    2. marc
+    """
+    base_domain = "http://library.ylccb.gov.tw"
+    search_domain = "https://search.books.com.tw"
+    search_path = "/search/query/key/"
+    protocol = "https:"
+
+    def __init__(self):
+        pass
+
+    def search_isbn(self,isbn):
+        pass
+
+    def get_soup(self,url):
+        pass
+
 
 
 if __name__ == '__main__':

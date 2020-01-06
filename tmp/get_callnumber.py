@@ -29,9 +29,9 @@ import re
 from os.path import isfile, isdir, join
 
 import logging
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s : %(message)s',
-                    filename='get_callnumber_log.txt')
+# logging.basicConfig(level=logging.INFO,
+#                     format='%(asctime)s - %(levelname)s : %(message)s',
+#                     filename='get_callnumber_log.txt')
 
 # --------------------------------------------------------- common routines
 

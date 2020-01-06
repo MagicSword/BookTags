@@ -120,6 +120,7 @@ class Book(db.Model):
     weight = db.Column(db.Float, nullable=True)
     # creativeWork
     author = db.Column(db.String(STR_LEN))
+    author_origin = db.Column(db.String(STR_LEN))
     translator = db.Column(db.String(STR_LEN),nullable=True)
     publisher = db.Column(db.String(STR_LEN))
     copyright_year = db.Column(db.DateTime)
@@ -155,6 +156,7 @@ class Book(db.Model):
     about_author_html = db.Column(db.Text)
     toc = db.Column(db.Text)
     toc_html = db.Column(db.Text)
+    preface = db.Column(db.Text)
     category = db.Column(db.String(STR_LEN))
     # StoreBook
     discount_price = db.Column(db.Integer)
@@ -162,6 +164,7 @@ class Book(db.Model):
     discount_date = db.Column(db.DateTime)
     paper_size = db.Column(db.String(ID_LEN))
     printing_color = db.Column(db.String(ID_LEN))
+    dimensions = db.Column(db.String(STR_LEN))
 
     # LibraryBook
     number_category = db.Column(db.String(ID_LEN))
@@ -224,6 +227,10 @@ class Book(db.Model):
     @classmethod
     def get_book_byisbn(cls, isbn):
         return cls.query.filter_by(isbn=isbn).first()
+
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.coommit()
 
 
 

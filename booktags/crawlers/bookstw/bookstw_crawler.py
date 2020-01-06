@@ -23,13 +23,15 @@ import abc
 import os
 import re
 import sys
-import datetime
+from datetime import datetime
 import pandas
 import requests
 from bs4 import BeautifulSoup
 
 
-from ..base import BaseCrawler
+from booktags.crawlers.base import BaseCrawler
+from booktags.flaskapp import db
+from booktags.db.basemodels import Book
 
 """
 https://search.books.com.tw/search/query/key/9789578423886/
@@ -65,6 +67,7 @@ class BooksTwCrawler(BaseCrawler):
 
     def __init__(self) -> object:
         self.prod_ids = set()
+        self.prods = []
 
     def search_isbn(self, isbn: str) -> list:
         """
@@ -118,18 +121,20 @@ class BooksTwCrawler(BaseCrawler):
         """
         pass
 
-    def get_productlist(self, product_id: list) -> list:
+    def get_productlist(self):
         """
 
         :param product_id:
         :return: dict
         https://www.books.com.tw/products/0010823875
         """
+        for idx in self.prod_ids:
+            book = self.get_product(idx)
+            self.prods.append(book)
 
-        for idx,id in enumerate(product_id):
-            url = f"{self.base_domain}/products/{id}"
 
-    def get_product(self, id: str) -> dict:
+
+    def get_product(self, id: str) -> Book:
         """
 
         :param id:
@@ -158,6 +163,7 @@ class BooksTwCrawler(BaseCrawler):
                 discount_date
                 discount_rate
         """
+        book = Book()
 
         url = f"{self.base_domain}/products/{id}"
 
@@ -175,9 +181,10 @@ class BooksTwCrawler(BaseCrawler):
         ############## meta block
         image = soup.find("meta", property="og:image")["content"]
         print(type(image))
-        image_tmp = soup.find_all('meta',attrs={"property":"og:image"})[0]
-        url_image = re.search(r'(https:\/\/www).*.*(jpg)', image_tmp).group(0)
-        url_product = soup.find("meta", property="og:url")["content"]
+        print(f"image --> {image}")
+        # image_tmp = soup.find_all('meta',attrs={"property":"og:image"})[0]
+        book.image = re.search(r'(https:\/\/www).*(jpg)', str(image)).group(0)
+        book.url = soup.find("meta", property="og:url")["content"]
 
         ##############  parse block
         top_block = \
@@ -191,8 +198,13 @@ class BooksTwCrawler(BaseCrawler):
         b_sort_block = bottom_block.find('ul', "sort")
 
         ##############  top_block > t_title_block
-        title, subtitle = t_title_block.h1.text.split('：')
-        title_eng = t_title_block.h2.text
+        book.name=t_title_block.h1.text
+        title_list=t_title_block.h1.text.split('：')
+        if len(title_list) >=2:
+            book.title, book.subtitle = title_list[0],title_list[1]
+        else:
+            book.title=book.name
+        book.title_english = t_title_block.h2.text
 
         # title_full = soup.find("meta", property="og:title")["content"]
         # self.parse_title(title_full)
@@ -211,31 +223,41 @@ class BooksTwCrawler(BaseCrawler):
 
         # div["type02_p003 clearfix"]
         pub_result = self.parse_t_pub_block(t_pub_block)
-        author = pub_result['author']
-        publisher = pub_result['publisher']
-        pub_date = pub_result['pub_date']
-        language = pub_result['language']
+        book.author = pub_result['author']
+        book.publisher = pub_result['publisher']
+        book.date_published = pub_result['pub_date']
+        book.in_language = pub_result['language']
         # 如果是外文書，會有 譯者
-        translator = pub_result['translator']
+        book.translator = pub_result['translator']
 
         # price block
-        price = t_price_block.select('li:nth-child(1) > em')[0].text
-        discount_rate = t_price_block.select('li:nth-child(2) > strong:nth-child(1)')[0].text
-        discount_date = t_price_block.select('li:nth-child(3)')[0].text.split('：')[1]
+        # price = t_price_block.select('li:nth-child(1) > em')[0].text
+        # discount_rate = t_price_block.select('li:nth-child(2) > strong:nth-child(1)')[0].text
+        # discount_date = t_price_block.select('li:nth-child(3)')[0].text.split('：')[1]
 
         price_result = self.parse_t_price_block(t_price_block)
-        price = price_result['price']
+        price = price_result['price'].rstrip('元')
         discount_rate, discount_price = price_result['discount_price'].split('折')
         discount_price = discount_price.rstrip('元')
-        discount_date = datetime.strptime(price_result['discount_date'], '%Y年%m月%d日止')
+
+        # if price_result['discount_date'] is None:
+        #     book.discount_date = None
+        # else:
+        #     discount_date = datetime.strptime(price_result['discount_date'], '%Y年%m月%d日止')
+        #     book.discount_date = discount_date
+
+        book.price=int(price)
+        book.discount_price=int(discount_price)
+        book.discount_rate=float(discount_rate)
+
 
 
 
         # summary
 
-        summary = soup.select("div.container_24.main_wrap.clearfix > div > div:nth-child(3) > div.grid_19.alpha > div:nth-child(1) > div")[0].text.strip()
-        about_author = soup.select("div.container_24.main_wrap.clearfix > div > div:nth-child(3) > div.grid_19.alpha > div:nth-child(2) > div")[0].text.strip()
-        toc = soup.select('#M201105_0_getProdTextInfo_P00a400020009_h2')[0].text.strip()
+        # book.summary = soup.select("div.container_24.main_wrap.clearfix > div > div:nth-child(3) > div.grid_19.alpha > div:nth-child(1) > div")[0].text.strip()
+        # book.about_author = soup.select("div.container_24.main_wrap.clearfix > div > div:nth-child(3) > div.grid_19.alpha > div:nth-child(2) > div")[0].text.strip()
+        # book.toc = soup.select('#M201105_0_getProdTextInfo_P00a400020009_h2')[0].text.strip()
 
 
         """
@@ -255,25 +277,29 @@ class BooksTwCrawler(BaseCrawler):
             field, value = ele.text.split('：')
             bottom_info[field] = value
 
-        isbn = bottom_info['ISBN']
-        pub_location = bottom_info['出版地']
+        book.isbn = bottom_info['ISBN']
+        book.location_created = bottom_info['出版地']
 
         if "叢書系列" in bottom_block.text:
-            serials = bottom_info["叢書系列"]
+            book.series = bottom_info["叢書系列"]
 
         # 規格：平裝 / 576頁 / 17 x 23 x 2.9 cm / 普通級 / 單色印刷 / 初版
         # binding / pages / dimensions / content_rating / print_color / edition
         specification = bottom_info["規格"]
         speci_list = self.parse_specification(specification)
 
-        pages = speci_list['']
-        binding = speci_list['']
-        dimensions = speci_list['']
-
-        
-
+        book.book_format=speci_list['binding']
+        book.number_pages = speci_list['pages'].rstrip('頁')
+        book.width=speci_list['width']
+        book.height = speci_list['height']
+        book.depth = speci_list['depth']
+        book.content_rating=speci_list['content_rating']
+        book.printing_color = speci_list['print_color']
+        book.book_edition=speci_list['edition'].rstrip('版')
         # 本書分類：電腦資訊> 程式設計/APP開發> Python
-        categories = self.parse_category(b_sort_block)
+        book.category = self.parse_category(b_sort_block)
+
+        return book
 
 
 
@@ -298,16 +324,18 @@ class BooksTwCrawler(BaseCrawler):
         author = t_pub_block.select("ul > li:nth-child(1) > a:nth-child(2)")[0].text
         pub_subblock = t_pub_block.select("div.type02_p003.clearfix > ul > li:nth-child(2)")[0]
         publisher = pub_subblock.find('span').text
-        pub_location = pub_subblock.find_all('li')[1].text.split('：')[1].strip()
+        pub_date = pub_subblock.find_all('li')[1].text.split('：')[1].strip()
         language = pub_subblock.find_all('li')[2].text.split('：')[1].strip()
 
         if '譯者' in t_pub_block.text:
             translator = pub_subblock.find('a').text
+        else:
+            translator = ''
 
         pub = {
             "author" : author,
             "publisher" : publisher,
-            "pub_location" : pub_location,
+            "pub_date" : pub_date,
             "language" : language,
             "translator" : translator
         }
@@ -323,11 +351,13 @@ class BooksTwCrawler(BaseCrawler):
         price_result = {}
         price_schema = {
             "定價": "price",
-            "優惠價": "discount_price",
-            "優惠期限": "discount_date"
+            # "優惠期限": "discount_date",
+            "優惠價": "discount_price"
         }
 
         for i in t_price_block.select('li'):
+            if '：' not in i.text:
+                continue
             field, value = i.text.split('：')
             for k, v in price_schema.items():
                 if field == k:
@@ -358,6 +388,8 @@ class BooksTwCrawler(BaseCrawler):
             for k, v in schema.items():
                 if k in d:
                     spe_result[v] = d
+        dia = spe_result['dimensions'].rstrip(' cm').split(' x ')
+        spe_result['width'], spe_result['height'],spe_result['depth'] = dia
 
         return spe_result
 
@@ -367,57 +399,20 @@ class BooksTwCrawler(BaseCrawler):
         :param b_sort_block: bs4.Element.Tags
         :return: list
         """
-        categories = []
+        categories = ""
         # sort_block = bottom_block.find('ul', "sort")
         for i in b_sort_block.find_all('li'):
             # print(i.text.split('：')[1])
-            categories.append(i.text.split('：')[1])
+            ele = i.text.split('：')[1]
+            categories = f"{categories} {ele}"
+        return categories
 
 
-    def get_events(self):
-        df = pandas.read_csv(
-            "https://raw.githubusercontent.com/python-organizers/conferences/master/2020.csv",
-            quoting=1,
-            encoding="utf-8",
-            dtype=str,
-        )
-        df = df.fillna("")
+    def db_commit(self):
+        for item in self.prods:
+            db.session.add(item)
+        db.session.commit()
 
-        for event in df.to_dict(orient="records"):
-            location = event["Location"].split(",")
-            city = state = country = None
-            if len(location) == 2:
-                city = location[0].strip()
-                country = location[1].strip()
-            elif len(location) == 3:
-                city = location[0].strip()
-                state = location[1].strip()
-                country = event["Country"]
-
-            cfp_end_date = (
-                event["Talk Deadline"] if event["Talk Deadline"] else "1970-01-01"
-            )
-            cfp_open = (
-                True
-                if datetime.datetime.now() < datetime.datetime.strptime(cfp_end_date, "%Y-%m-%d")
-                else False
-            )
-            e = {
-                "name": event["Subject"],
-                "url": event["Website URL"],
-                "city": city,
-                "state": state,
-                "country": country,
-                "cfp_open": cfp_open,
-                "cfp_end_date": cfp_end_date,
-                "start_date": event["Start Date"],
-                "end_date": event["End Date"],
-                "source": "https://github.com/python-organizers/conferences",
-                "tags": ["python"],
-                "kind": "conference",
-                "by": "bot",
-            }
-            self.events.append(e)
 
 
 if __name__ == '__main__':

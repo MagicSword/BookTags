@@ -50,9 +50,9 @@ import re
 import pandas as pd
 import numpy as np
 import logging
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime)s - %(levelname)s : %(message)s',
-                    filename='simple_table_grid_log.txt')
+# logging.basicConfig(level=logging.INFO,
+#                     format='%(asctime)s - %(levelname)s : %(message)s',
+#                     filename='simple_table_grid_log.txt')
 
 
 # container for the 'Flowable' objects
