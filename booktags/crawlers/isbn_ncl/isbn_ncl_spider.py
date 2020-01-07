@@ -44,6 +44,12 @@ class IsbnNclCrawler(BaseCrawler):
 
         # urlparse
         # <scheme>://<netloc>/<path>;<params>?<query>#<fragment>
+
+        # search
+        # http://isbn.ncl.edu.tw/NEW_ISBNNet/main_DisplayResults.php?&Pact=DisplayAll4Simple
+
+        # book page: CODE COMPLETE 2中文版: 軟體開發實務指南
+        # http://isbn.ncl.edu.tw/NEW_ISBNNet/main_DisplayRecord.php?&Pact=Display&Pstart=1
         search_url = f"{self.base_domain}{self.search_path_isbn}{isbn}"
         soup = self.get_soup(search_url)
 

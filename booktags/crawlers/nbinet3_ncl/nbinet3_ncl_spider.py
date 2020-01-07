@@ -15,7 +15,7 @@
 #     the current directory is changed with os.chdir(), an incorrect
 #     path will be displayed.
 
-
+import re
 from booktags.crawlers.base import BaseCrawler
 
 
@@ -29,11 +29,7 @@ class Nbinet3NlcCrawler(BaseCrawler):
     base_domain = "http://nbinet3.ncl.edu.tw"
     search_domain = "http://nbinet3.ncl.edu.tw"
     search_path_isbn = "/search*cht/?searchtype=i&searcharg="
-
     protocol = "https:"
-
-
-
 
     def __init__(self):
         pass
@@ -97,7 +93,7 @@ class Nbinet3NlcCrawler(BaseCrawler):
         :return:
         """
 
-
+        top_result={}
         return top_result
 
     def parse_mid_block(self,mid_block: object) -> list:
@@ -105,15 +101,47 @@ class Nbinet3NlcCrawler(BaseCrawler):
 
         :return:
         """
+        def parse_callnum(row):
+            names = ['callnum', 'author', 'year']
+            dict_tmp = {}
+            row = row.lstrip('BOOK ')
+            for name, ele in zip(names, row.split(' ')):
+                dict_tmp[name] = ele
+            return dict_tmp
+
         mid_tmp = []
         for item in mid_block.find_all('tr', 'bibItemsEntry'):
             # print(item.select('tr > td:nth-child(2)')[0].text)
             callnum = item.select('tr > td:nth-child(2)')[0].text.strip()
             mid_tmp.append(callnum)
 
-        mid_result = {}
+        result = {
+            "callnum": {},
+            "author": {},
+            "year": {}
+        }
+        for row in mid_tmp:
+            for k, v in parse_callnum(row).items():
+                if v not in result[k]:
+                    result[k][v] = 1
+                else:
+                    result[k][v] += 1
 
-        return mid_tmp
+        author_tmp=max(result['author'], key=result['author'].get)
+        if '.' or '-':
+            author = re.search(r"(\d{3,4})[-.](\d)",author_tmp).group(1)
+        else:
+            author=author_tmp
+
+        # TODO: year 西元，民國？
+
+        mid_result = {
+            "callnum": max(result['callnum'],key=result['callnum'].get),
+            "author": author,
+            "year": max(result['year'],key=result['year'].get)
+        }
+
+        return mid_result
 
     def parse_bot_block(self,bot_block: object) -> dict:
         """
@@ -122,10 +150,10 @@ class Nbinet3NlcCrawler(BaseCrawler):
         :return:
         """
 
-
+        bot_result={}
         return bot_result
 
-    def get_book(self,isbn: str) -> dict:
+    def get_book(self,url: str) -> dict:
         """
 
         :return:
@@ -142,11 +170,17 @@ class Nbinet3NlcCrawler(BaseCrawler):
         #     < tr.bibItemsEntry
         #      < td
         #        < a
+        soup=self.get_soup(url)
+        block=self.get_blocks(soup)
 
+        mid_result=self.parse_mid_block(block['mid_block'])
+
+
+
+
+        book_dic={}
+        book_dic.update(mid_result)
         return book_dic
-
-
-
 
 
 if __name__ == '__main__':

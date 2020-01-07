@@ -28,7 +28,7 @@ class TestIsbnNclCrawler(unittest.TestCase):
 
     # @unittest.skip("test search isbn")
     def test_search_isbn(self):
-        isbn="9789867778819"
+        isbn="9789864341313"
 
         urls_ans=[
             "/search~S10*cht?/i9789867778819/i9789867778819/1%2C1%2C6%2CE/frameset&FF=i9789867778819&1%2C%2C6",

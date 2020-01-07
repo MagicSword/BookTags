@@ -67,6 +67,8 @@ class MetaNclCrawler(BaseCrawler):
 
     def get_blocks(self, soup: object) -> dict:
         """
+        isbn="9789864341313"
+        http://metadata.ncl.edu.tw/blstkmc/blstkm?@@949957379#tudorkmtop
 
         :param soup:
         :return:
