@@ -20,9 +20,9 @@ import os
 from .logger import create_logger
 
 USER_HOME = os.path.expanduser("~")
-# Project_HOME = os.path.join(USER_HOME, ".booktags")
+# PROJECT_DIR = os.path.join(USER_HOME, ".booktags")
 basedir = os.path.abspath(os.path.dirname(__file__))
-Project_HOME = basedir
+PROJECT_DIR = basedir
 # SQL_ALCHEMY_CONN_PGSQL = "postgres+psycopg2://user:password@localhost:5432/booktags"
 
 
@@ -77,7 +77,7 @@ class DevelopmentConfig(Config):
 
     DB_name = "booktags-dev.sqlite"
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
-                              "sqlite:///" + os.path.join(Project_HOME, DB_name)
+                              "sqlite:///" + os.path.join(PROJECT_DIR, DB_name)
     # debug toolbar
     DEBUG_TB_ENABLED=True
     # DEBUG_TB_HOSTS=
@@ -92,14 +92,14 @@ class TestingConfig(Config):
     TESTING = True
     DB_name = "booktags-test.sqlite"
     SQLALCHEMY_DATABASE_URI =  os.environ.get('TEST_DATABASE_URL') or \
-                               "sqlite:///" + os.path.join(Project_HOME, DB_name)
+                               "sqlite:///" + os.path.join(PROJECT_DIR, DB_name)
     WTF_CSRF_ENABLED = False
 
 
 class ProductionConfig(Config):
     DB_name = "booktags.sqlite"
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-                              "sqlite:///" + os.path.join(Project_HOME, DB_name)
+                              "sqlite:///" + os.path.join(PROJECT_DIR, DB_name)
 
     @classmethod
     def init_app(cls, app):
@@ -183,8 +183,8 @@ config = {
     'default': DevelopmentConfig
 }
 
-if not os.path.exists(Project_HOME):
-    os.makedirs(Project_HOME)
+if not os.path.exists(PROJECT_DIR):
+    os.makedirs(PROJECT_DIR)
 
 if __name__ == '__main__':
     pass

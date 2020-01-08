@@ -17,14 +17,15 @@
 
 import os
 
-
 # --------------------------------------------------------- common routines
 USER_HOME = os.path.expanduser("~")
-Project_HOME = os.path.join(USER_HOME, ".booktags")
+# PROJECT_DIR = os.path.join(USER_HOME, ".booktags")
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
+ASSETS_DIR = os.path.join(PROJECT_DIR, "assets")
 # Project-wide setting
 
-if not os.path.exists(Project_HOME):
-    os.makedirs(Project_HOME)
+# if not os.path.exists(PROJECT_DIR):
+#     os.makedirs(PROJECT_DIR)
 
 if __name__ == '__main__':
     pass

@@ -68,4 +68,6 @@ flask-marshmallow==0.10.1
 marshmallow==3.3.0
 marshmallow-sqlalchemy==0.21.0
 sqlalchemy-datatables==2.0.1
+cchardet==2.1.5
+
 

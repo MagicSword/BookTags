@@ -19,11 +19,11 @@ import os
 import logging
 from datetime import datetime
 
-from . import Project_HOME
+from . import PROJECT_DIR
 
 
 # --------------------------------------------------------- common routines
-log_path = os.path.join(Project_HOME, "logs")
+log_path = os.path.join(PROJECT_DIR, "logs")
 filename = f"{datetime.now().strftime('%Y%m%d-%H%M')}.txt"
 
 def create_logger(log_folder):

@@ -4,9 +4,10 @@
 
 ### User
 
-
+.idea/*
 tmp/backup/*
 booktags/tmp/*
+booktags/assets/*
 
 
 *.py[cod]

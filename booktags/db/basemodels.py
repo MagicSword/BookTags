@@ -168,7 +168,7 @@ class Book(db.Model):
 
     # LibraryBook
     number_category = db.Column(db.String(ID_LEN))
-    num_author = db.Column(db.String(ID_LEN))
+    number_author = db.Column(db.String(ID_LEN))
     keepsite = db.Column(db.String(ID_LEN))
     number_copies = db.Column(db.Integer)
     # misc
@@ -253,7 +253,7 @@ class Book(db.Model):
 #     # __table_args__ = {'extend_existing': True}
 #
 #     number_category = db.Column(db.String(ID_LEN))
-#     num_author = db.Column(db.String(ID_LEN))
+#     number_author = db.Column(db.String(ID_LEN))
 #     keepsite = db.Column(db.String(ID_LEN))
 #     number_copies = db.Column(db.Integer)
 #

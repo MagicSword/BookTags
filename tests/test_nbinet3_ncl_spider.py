@@ -42,9 +42,9 @@ class TestNbinet3NlcCrawler(unittest.TestCase):
             "/search~S10*cht?/i9789867778819/i9789867778819/1%2C1%2C6%2CE/frameset&FF=i9789867778819&5%2C%2C6",
             "/search~S10*cht?/i9789867778819/i9789867778819/1%2C1%2C6%2CE/frameset&FF=i9789867778819&6%2C%2C6"
         ]
-        urls_resust = self.spider.search_isbn(isbn)
+        urls_result = self.spider.search_isbn(isbn)
 
-        self.assertEqual(urls_resust, urls_ans)
+        self.assertEqual(urls_result, urls_ans)
 
     def test_parse_mid_block(self):
         """

@@ -87,8 +87,8 @@ StoreBookSchema.update({
 
 LibraryBookSchema = copy.deepcopy(BookSchema)
 LibraryBookSchema.update({
-    "num_category": {"type": "string", "required": False, "nullable": True},
-    "num_author": {"type": "string", "required": False, "nullable": True},
+    "number_category": {"type": "string", "required": False, "nullable": True},
+    "number_author": {"type": "string", "required": False, "nullable": True},
     "keepsite": {"type": "string", "required": False, "nullable": True},
     "numberOfCopies": {"type": "string", "required": False, "nullable": True}
 })

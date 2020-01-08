@@ -78,6 +78,7 @@ def just_save_marc(id,isbn):
 
     if len(libraryid) == 0:
         #print("{} NULL".format(isbn))
+        # if not libraryid then filename add tail ".fail"
         filename = "%s%04d-%s.%s" % ('./marc/',id ,isbn,'marc.fail')
         with open(filename, 'wb') as fd:
             #fd.write()

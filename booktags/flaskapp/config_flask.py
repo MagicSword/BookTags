@@ -25,18 +25,18 @@ import os
 # class DevelopmentConfig(DevelopmentConfig):
 #     DEBUG = True
 #     # DB_name = "booktags-dev.sqlite"
-#     # SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(Project_HOME, DB_name)
+#     # SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(PROJECT_DIR, DB_name)
 #
 #
 # class TestingConfig(Config):
 #     TESTING = True
 #     # DB_name = "booktags-test.sqlite"
-#     # SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(Project_HOME, DB_name)
+#     # SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(PROJECT_DIR, DB_name)
 #
 #
 # class ProductionConfig(Config):
 #     # DB_name = "booktags.sqlite"
-#     # SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(Project_HOME, DB_name)
+#     # SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(PROJECT_DIR, DB_name)
 #     pass
 #
 #
