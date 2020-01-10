@@ -6,6 +6,16 @@
     A simple command line application to run flask apps.
     :copyright: 2019 Miller
     :license: BSD-3-Clause
+
+    :note:
+    1. [SQLAlchemy Inheritance
+](https://golden-note.readthedocs.io/zh/latest/python/sqlalchemy/inheritance.html)
+        * Joined Table Inheritance
+            * joined table
+        * Single Table Inheritance
+            * all class  in same table
+        * Concrete Table Inheritance
+            * bad
 """
 
 # Known bugs that can't be fixed here:
@@ -16,17 +26,13 @@
 #     path will be displayed.
 
 import bleach
-from datetime import datetime
+from datetime import datetime, timedelta
 from markdown import markdown
-
-
 
 from ..flaskapp import db
 from ..flaskapp import ma
 
-
 # --------------------------------------------------------- common routines
-
 ID_LEN = 100
 STR_LEN = 1024
 
@@ -106,7 +112,7 @@ STR_LEN = 1024
 
 class Book(db.Model):
     __tablename__ = "books"
-    # __table_args__ = {'extend_existing': True}
+    __table_args__ = {'extend_existing': True}
     # Thing
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(STR_LEN))
@@ -118,7 +124,7 @@ class Book(db.Model):
     height = db.Column(db.Float, nullable=True)
     depth = db.Column(db.Float, nullable=True)
     weight = db.Column(db.Float, nullable=True)
-    # creativeWork
+    # CreativeWork
     author = db.Column(db.String(STR_LEN))
     author_origin = db.Column(db.String(STR_LEN))
     translator = db.Column(db.String(STR_LEN),nullable=True)
@@ -131,8 +137,8 @@ class Book(db.Model):
     date_published = db.Column(db.DateTime)
     in_language = db.Column(db.String(ID_LEN))
     genre = db.Column(db.String(STR_LEN))
-    review = db.Column(db.Text)
-    comment = db.Column(db.Text)
+    review = db.Column(db.Text)   # long article
+    comment = db.Column(db.Text)  # short message
     translation_Work = db.Column(db.String(STR_LEN))
     work_translation = db.Column(db.String(STR_LEN))
     keywords = db.Column(db.String(STR_LEN))
@@ -159,28 +165,38 @@ class Book(db.Model):
     preface = db.Column(db.Text)
     category = db.Column(db.String(STR_LEN))
     # StoreBook
-    discount_price = db.Column(db.Integer)
-    discount_rate = db.Column(db.Float)
-    discount_date = db.Column(db.DateTime)
-    paper_size = db.Column(db.String(ID_LEN))
-    printing_color = db.Column(db.String(ID_LEN))
-    dimensions = db.Column(db.String(STR_LEN))
+    # bookstw_id = db.Column(db.Integer)
+    # discount_price = db.Column(db.Integer)
+    # discount_rate = db.Column(db.Float)
+    # discount_date = db.Column(db.DateTime)
+    # paper_size = db.Column(db.String(ID_LEN))
+    # printing_color = db.Column(db.String(ID_LEN))
+    # dimensions = db.Column(db.String(STR_LEN))
 
     # LibraryBook
+    # libylc_id = db.Column(db.Integer)
     number_category = db.Column(db.String(ID_LEN))
     number_author = db.Column(db.String(ID_LEN))
-    keepsite = db.Column(db.String(ID_LEN))
+    keepsite = db.Column(db.String(ID_LEN)) # shelf ?
     number_copies = db.Column(db.Integer)
+    marc_blob = db.Column(db.BLOB)
     # misc
     bookmain_id = db.Column(db.Integer, db.ForeignKey('bookmain.id'))
-
+    hidden = db.Column(db.Boolean, default=0)
+    # from goodread
+    # MY ACTIVITY: read process, read status
+    reading_processs= db.Column(db.Integer)  # current page
+    rating_stars= db.Column(db.Integer)  # my rating: 5/5 star, int
+    # shelve_id = db.relationship('Shelve',
+    #                             secondary=book_tag,
+    #                             backref=db.backref('shelves', lazy='dynamic'),
+    #                             lazy='dynamic')
 
     __mapper_args__ = {
-        'polymorphic_identity': 'books'
+        'polymorphic_identity': 'books',
+        'polymorphic_on': type
     }
 
-    def __repr__(self):
-        return "<{} : (id='{}',name='{}')>".format(self.__class__.__name__,self.id,self.name)
 
     @staticmethod
     def on_changed_summary(target, value, oldvalue, initiator):
@@ -233,34 +249,75 @@ class Book(db.Model):
         db.session.coommit()
 
 
+    def __repr__(self):
+        return "<{} : (id='{}',name='{}')>".format(self.__class__.__name__,self.id,self.name)
 
-# class StoreBook(Book):
-#     __tablename__ = "storebook"
-#     # __table_args__ = {'extend_existing': True}
-#
-#     discount_price = db.Column(db.Integer)
-#     discount_rate = db.Column(db.Float)
-#     discount_date = db.Column(db.DateTime)
-#     paper_size = db.Column(db.String(ID_LEN))
-#     printing_color = db.Column(db.String(ID_LEN))
-#
-#     __mapper_args__ = {
-#         'polymorphic_identity': 'storebook'
-#     }
-#
-# class LibraryBook(Book):
-#     __tablename__ = "librarybook"
-#     # __table_args__ = {'extend_existing': True}
-#
-#     number_category = db.Column(db.String(ID_LEN))
-#     number_author = db.Column(db.String(ID_LEN))
-#     keepsite = db.Column(db.String(ID_LEN))
-#     number_copies = db.Column(db.Integer)
-#
-#     __mapper_args__ = {
-#         'polymorphic_identity': 'librarybook'
-#     }
 
+db.event.listen(Book.summary, 'set', Book.on_changed_summary)
+db.event.listen(Book.about_author, 'set', Book.on_changed_about_author)
+db.event.listen(Book.toc, 'set', Book.on_changed_toc)
+
+
+class BooksTwBook(Book):
+    """ books.com.tw Book class
+
+    """
+    __tablename__ = "bookstw_book"
+    # __table_args__ = {'extend_existing': True}
+
+
+    id = db.Column(db.Integer, db.ForeignKey('books.id'), primary_key=True)
+    discount_price = db.Column(db.Integer)
+    discount_rate = db.Column(db.Float)
+    discount_date = db.Column(db.DateTime)
+    paper_size = db.Column(db.String(ID_LEN))
+    printing_color = db.Column(db.String(ID_LEN))
+    dimensions = db.Column(db.String(STR_LEN))  # 規格 string
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'bookstw_book'
+    }
+
+class LibYlcBook(Book):
+    """ library.ylccb.gov.tw Book class
+
+    """
+    __tablename__ = "libylc_book"
+    # __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, db.ForeignKey('books.id'), primary_key=True)
+    number_category = db.Column(db.String(ID_LEN))
+    number_author = db.Column(db.String(ID_LEN))
+    keepsite = db.Column(db.String(ID_LEN))
+    number_copies = db.Column(db.Integer)  # 館藏數量
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'libylc_book'
+    }
+
+    def __repr__(self):
+        return "<{} : (id = '{}', name = '{}' )>".format(self.__class__.__name__,self.id,self.name)
+
+
+class MyBook(Book):
+    """ library.ylccb.gov.tw Book class
+
+    """
+    __tablename__ = "my_book"
+    # __table_args__ = {'extend_existing': True}
+
+    id = db.Column(db.Integer, db.ForeignKey('books.id'), primary_key=True)
+    number_category = db.Column(db.String(ID_LEN))
+    number_author = db.Column(db.String(ID_LEN))
+    keepsite = db.Column(db.String(ID_LEN))
+    number_copies = db.Column(db.Integer)  # 館藏數量
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'my_book'
+    }
+
+    def __repr__(self):
+        return "<{} : (id = '{}', name = '{}' )>".format(self.__class__.__name__,self.id,self.name)
 
 # class VideoGameClass(CreativeWork):
 #     pass
@@ -272,18 +329,130 @@ class Book(db.Model):
 #     pass
 
 
-# class MARCClass(db.Model):
-#     __tablename__ = "marc"
-#
-#     id = db.Column(db.String(ID_LEN), primary_key=True)
-#     name = db.Column(db.String(STR_LEN))
-#     image_url = db.Column(db.String(STR_LEN))
-#     descritption = db.Column(db.NVARCHAR(), nullable=True)
-#     marc = db.Column(db.VARBINARY(), nullable=True)
-#     marc_json = db.Column(db.JSON(), nullable=True)
-#
-#     def __repr__(self):
-#         return "<{} : (id = '{}', name = '{}' )>".format(self.__class__.__name__,self.id,self.name)
+class MARCClass(db.Model):
+    """ MARC
+    MARC type: CMARC,MARC21
+
+    """
+    __tablename__ = "marc"
+
+
+    id = db.Column(db.String(ID_LEN), primary_key=True)
+    isbn = db.Column(db.String(ID_LEN), unique=True, index=True)
+    name = db.Column(db.String(STR_LEN))
+    author = db.Column(db.String(STR_LEN))
+
+    image_url = db.Column(db.String(STR_LEN))
+    descritption = db.Column(db.TEXT, nullable=True)
+    # 預設 CMARCv3, JSON 也是 CMARCv3 2007 版
+    marc = db.Column(db.BLOB, nullable=True)
+    json = db.Column(db.JSON, nullable=True)
+    xml = db.Column(db.BLOB, nullable=True)
+
+
+    def save_marc(self,filepath):
+        if self.marc is None:
+            return False
+        else:
+            with open(filepath,'wb') as fd:
+                fd.write(filepath)
+
+    def save_json(self,filepath):
+        import json
+        if self.json is None:
+            self.marcjson()
+        else:
+            with open(filepath,'w') as fd:
+                json.dump(self.json, fd)
+
+    def load_json(self):
+        pass
+
+    def load_marc(self,fobj):
+        self.marc=fobj
+
+    def marcjson(self):
+        pass
+
+    def marcxml(self):
+        pass
+
+    def __repr__(self):
+        return "<{} : (id = '{}', name = '{}' )>".format(self.__class__.__name__,self.id,self.name)
+
+
+
+
+class Log(db.Model):
+    __tablename__ = 'logs'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    book_id = db.Column(db.Integer, db.ForeignKey('books.id'))
+    borrow_timestamp = db.Column(db.DateTime, default=datetime.now())
+    return_timestamp = db.Column(db.DateTime, default=datetime.now())
+    returned = db.Column(db.Boolean, default=0)
+
+    def __init__(self, user, book):
+        self.user = user
+        self.book = book
+        self.borrow_timestamp = datetime.now()
+        self.return_timestamp = datetime.now() + timedelta(days=30)
+        self.returned = 0
+
+    def __repr__(self):
+        return u'<%r - %r>' % (self.user.name, self.book.title)
+
+
+class Comment(db.Model):
+    __tablename__ = 'comments'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    book_id = db.Column(db.Integer, db.ForeignKey('books.id'))
+    comment = db.Column(db.String(1024))
+    create_timestamp = db.Column(db.DateTime, default=datetime.now())
+    edit_timestamp = db.Column(db.DateTime, default=datetime.now())
+    deleted = db.Column(db.Boolean, default=0)
+
+    def __init__(self, book, user, comment):
+        self.user = user
+        self.book = book
+        self.comment = comment
+        self.create_timestamp = datetime.now()
+        self.edit_timestamp = self.create_timestamp
+        self.deleted = 0
+
+
+book_tag = db.Table('books_tags',
+                    db.Column('book_id', db.Integer, db.ForeignKey('books.id')),
+                    db.Column('tag_id', db.Integer, db.ForeignKey('tags.id'))
+                    )
+
+
+class Tag(db.Model):
+    __tablename__ = 'tags'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+    books = db.relationship('Book',
+                            secondary=book_tag,
+                            backref=db.backref('tags', lazy='dynamic'),
+                            lazy='dynamic')
+
+    def __repr__(self):
+        return u'<Tag %s>' % self.name
+
+
+class Shelve(db.Model):
+    __tablename__ = 'tags'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+    books = db.relationship('Book',
+                            secondary=book_tag,
+                            backref=db.backref('tags', lazy='dynamic'),
+                            lazy='dynamic')
+
+    def __repr__(self):
+        return u'<Tag %s>' % self.name
+
 
 ######   Marshmallow
 
@@ -302,8 +471,7 @@ class BookSchema(ma.ModelSchema):
 #         model = LibraryBookClass
 
 
-
-
-
 if __name__ == '__main__':
     pass
+
+

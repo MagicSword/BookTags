@@ -14,6 +14,11 @@
     </ul>
 
 
+{% if pagination %}
+<div class="pagination container-fluid text-center">
+    {{ macros.pagination_widget(pagination, '.index') }}
+</div>
+{% endif %}
 
 <table class="table table-striped table-hover table-responsive">
 

@@ -18,7 +18,7 @@
 import unittest
 from unittest import TestCase
 
-from booktags.crawlers.lib_ylccb.lib_ylccb_spider import LibYlcCrawler
+from booktags.crawlers.libylc.libylc_spider import LibYlcCrawler
 
 
 # --------------------------------------------------------- common routines

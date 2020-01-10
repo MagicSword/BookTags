@@ -16,6 +16,7 @@
 #     path will be displayed.
 
 from typing import List,Dict
+from abc  import ABC
 
 import re
 import os
@@ -47,7 +48,18 @@ class LibYlcCrawler(BaseCrawler):
     book_top_path="/maintain/bookDetailAssdataAjax.do?id="
     book_bot_path="/maintain/HoldListForBookDetailAjax.do?id="
 
-    marc_path=os.path.join(ASSETS_DIR,"lib_ylccb_marc")
+    marc_path=os.path.join(ASSETS_DIR,"libylc_marc")
+
+    class LibYlcBook(ABC):
+        """Base class to handle single book
+
+        """
+
+        def __init__(self,id):
+            self.id=id  #library id
+            self.marc="" #binary marc
+
+        
 
 
 

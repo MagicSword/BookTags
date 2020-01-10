@@ -182,12 +182,13 @@ class BooksTwCrawler(BaseCrawler):
         """
         title
 
-        if title_english
+        if title_alt
+            title_alt 可能是原文書名(英文，日文…) ，也有可能是 中文書的英文書名
         if subtitle
         :return:
         """
         name = title_block.h1.text.strip()
-        title_english = title_block.h2.text.strip()
+        title_alt = title_block.h2.text.strip()
         lst = name.split('：')
         title=lst[0]
         subtitle=name.lstrip(title+'：')
@@ -195,8 +196,10 @@ class BooksTwCrawler(BaseCrawler):
         title_result={
             "title" : title,
             "subtitle" : subtitle,
-            "title_english" : title_english
+            "title_alt" : title_alt
         }
+
+
 
         return title_result
 

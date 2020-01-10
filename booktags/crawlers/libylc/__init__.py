@@ -15,14 +15,5 @@
 #     the current directory is changed with os.chdir(), an incorrect
 #     path will be displayed.
 
-import abc
-
 
 # --------------------------------------------------------- common routines
-
-def what():
-    pass
-
-
-if __name__ == '__main__':
-    pass

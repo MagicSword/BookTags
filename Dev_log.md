@@ -30,6 +30,7 @@ https://greyli.com/flask-set-let-flash-message-supports-a-bootstrap-message-styl
 
 # 20191219
 * setting 
+
 ```python
 set FLASK_APP=booktags.cli
 set FLASK_DEBUG=1
@@ -44,3 +45,9 @@ set FLASK_DEBUG=1
 
 * [ward](https://github.com/darrenburns/ward)
 * `E:\_Documents\GitHub\PyCharm_Workspace\BookTags>ward`
+
+# 20200110
+
+* pyunimarc: lack of function
+* 還是用 pymarc+marcx , 再改成 UNIMARC -> CMARC
+* Model design : myAttrib , ReadingStatus

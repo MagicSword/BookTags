@@ -1,0 +1,23 @@
+Metadata-Version: 1.1
+Name: pyunimarc
+Version: 0.1.0
+Summary: Unimarc reader
+Home-page: https://forge.extranet.logilab.fr/open-source/pyunimarc
+Author: Logilab
+Author-email: contact@logilab.fr
+License: LGPL
+Description: 
+        pyunimarc
+        =========
+        
+        A simple Python library for reading data in Unimarc textual files.
+        
+        See https://www.ifla.org/node/8415 for details on this format.
+        
+        
+        
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Text Processing :: Markup
+Classifier: Programming Language :: Python :: 3
