@@ -112,7 +112,7 @@ STR_LEN = 1024
 
 class Book(db.Model):
     __tablename__ = "books"
-    __table_args__ = {'extend_existing': True}
+    # __table_args__ = {'extend_existing': True}
     # Thing
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(STR_LEN))
@@ -192,9 +192,19 @@ class Book(db.Model):
     #                             backref=db.backref('shelves', lazy='dynamic'),
     #                             lazy='dynamic')
 
+    # myAttribute
+    # total
+    # toRead
+    # currentlyReading
+    # read
+    # reference
+    # to_give_up
+
+    booktable_type = db.Column(db.String(ID_LEN))
+
     __mapper_args__ = {
         'polymorphic_identity': 'books',
-        'polymorphic_on': type
+        'polymorphic_on': booktable_type
     }
 
 
@@ -262,7 +272,7 @@ class BooksTwBook(Book):
     """ books.com.tw Book class
 
     """
-    __tablename__ = "bookstw_book"
+    __tablename__ = "bookstw_books"
     # __table_args__ = {'extend_existing': True}
 
 
@@ -275,14 +285,14 @@ class BooksTwBook(Book):
     dimensions = db.Column(db.String(STR_LEN))  # 規格 string
 
     __mapper_args__ = {
-        'polymorphic_identity': 'bookstw_book'
+        'polymorphic_identity': 'bookstw_books'
     }
 
 class LibYlcBook(Book):
     """ library.ylccb.gov.tw Book class
 
     """
-    __tablename__ = "libylc_book"
+    __tablename__ = "libylc_books"
     # __table_args__ = {'extend_existing': True}
 
     id = db.Column(db.Integer, db.ForeignKey('books.id'), primary_key=True)
@@ -292,7 +302,7 @@ class LibYlcBook(Book):
     number_copies = db.Column(db.Integer)  # 館藏數量
 
     __mapper_args__ = {
-        'polymorphic_identity': 'libylc_book'
+        'polymorphic_identity': 'libylc_books'
     }
 
     def __repr__(self):
@@ -303,7 +313,7 @@ class MyBook(Book):
     """ library.ylccb.gov.tw Book class
 
     """
-    __tablename__ = "my_book"
+    __tablename__ = "my_books"
     # __table_args__ = {'extend_existing': True}
 
     id = db.Column(db.Integer, db.ForeignKey('books.id'), primary_key=True)
@@ -313,7 +323,7 @@ class MyBook(Book):
     number_copies = db.Column(db.Integer)  # 館藏數量
 
     __mapper_args__ = {
-        'polymorphic_identity': 'my_book'
+        'polymorphic_identity': 'my_books'
     }
 
     def __repr__(self):
@@ -434,24 +444,24 @@ class Tag(db.Model):
     name = db.Column(db.String)
     books = db.relationship('Book',
                             secondary=book_tag,
-                            backref=db.backref('tags', lazy='dynamic'),
+                            backref=db.backref('books', lazy='dynamic'),
                             lazy='dynamic')
 
     def __repr__(self):
-        return u'<Tag %s>' % self.name
+        return u'<Tags %s>' % self.name
 
 
-class Shelve(db.Model):
-    __tablename__ = 'tags'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String)
-    books = db.relationship('Book',
-                            secondary=book_tag,
-                            backref=db.backref('tags', lazy='dynamic'),
-                            lazy='dynamic')
-
-    def __repr__(self):
-        return u'<Tag %s>' % self.name
+# class Shelve(db.Model):
+#     __tablename__ = 'shelves'
+#     id = db.Column(db.Integer, primary_key=True)
+#     name = db.Column(db.String)
+#     books = db.relationship('Book',
+#                             secondary=book_tag,
+#                             backref=db.backref('books', lazy='dynamic'),
+#                             lazy='dynamic')
+#
+#     def __repr__(self):
+#         return u'<ShelvesTag %s>' % self.name
 
 
 ######   Marshmallow

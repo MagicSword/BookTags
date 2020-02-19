@@ -33,16 +33,17 @@ class TestLibYlcCrawler(unittest.TestCase):
     # @unittest.skip("test search isbn")
     def test_search_isbn(self):
         isbn = "9789570810783"
-        urls_ans = ['202757', '42281', '52904', '10641', '518923', '194353']
+        urls_ans = ['202757', '42281', '52904', '10641', '518923']
 
         urls_result = self.spider.search_isbn(isbn)
 
-        self.assertEqual(urls_result, urls_ans)
+        self.assertCountEqual(urls_result, urls_ans)
 
     def test_get_soup(self):
         import bs4
         url = "http://library.ylccb.gov.tw/bookDetail.do?id=580659"
-        soup_result = self.spider.get_soup(url)
+        ref_url = "http://library.ylccb.gov.tw/bookDetail.do?id=580659"
+        soup_result = self.spider.get_soup(url, ref_url)
         self.assertIsInstance(soup_result, bs4.BeautifulSoup)
 
     def test_fetch_blocks(self):

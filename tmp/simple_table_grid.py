@@ -5,7 +5,7 @@
 DESCRIPTION here
 
 """
-__all__ = ['help']
+__all__ = ["help"]
 __author__ = "Nero <magicsword@gmail.com>"
 __date__ = "26 February 2001"
 __copyright__ = "Copyright 2017, The Nostalgic project"
@@ -137,9 +137,9 @@ def get_title_head(in_string):
 
 
         if count >= 15:
-            print("Count: {:02d} - {}".format(count, out_string))
+            print("Char Width Count: {:02d} - {}".format(count, out_string))
             return out_string + " "
-    print("Count: {:02d} - {}".format(count, out_string))
+    print("Char Width Count: {:02d} - {}".format(count, out_string))
     return out_string + " "
 
 
@@ -168,11 +168,11 @@ def get_head5(encoding):
 
 # ------------------------- char width
 
-def get_df(filename,DELETE,REPRINT_ONLY):
+def get_df(filename,REMOVED,REPRINT_ONLY):
     """
 
     :param filename:
-    id	isbn	title	catalogue	cutter	pub_date	copy_info	fail	note	reprint	delete	location
+    id	isbn	title_short title	catalogue	cutter	pub_year	copy_info	get_link	note	reprint	removed	keepsite
     :return: 15:10 df
     """
     tags_list = []
@@ -189,8 +189,8 @@ def get_df(filename,DELETE,REPRINT_ONLY):
         # 第三行： (6 - 3) 前 6 作者名四角號碼，後3 序號
         # 第四行： 原 索書號 第四行
 
-        # 刪掉 delete row
-        if DELETE == True and row['delete'] == "delete":
+        # 刪掉 removed row
+        if REMOVED == True and row['removed'] == "removed":
             continue
 
         if REPRINT_ONLY == True and row['reprint'] != 'reprint':
@@ -208,7 +208,7 @@ def get_df(filename,DELETE,REPRINT_ONLY):
             title = get_title_head(row['title_short'])
             catalogue = row['catalogue']
             cutter = row['cutter']
-            pub_date = row['pub_date']
+            pub_year = row['pub_year']
             copy_info = row['copy_info']
 
             # if len(tmp[1]) > 6:
@@ -223,9 +223,9 @@ def get_df(filename,DELETE,REPRINT_ONLY):
             #     callnumber = "\n".join(tmp)
             #print("{}: {} - {}".format(index, "----", callnumber))
             if copy_info == 'nan' or copy_info == '':
-                tags = "{0}\n{1}\n{2}-{3}\n{4}".format(title, catalogue, cutter, id, pub_date)
+                tags = "{0}\n{1}\n{2}-{3}\n{4}".format(title, catalogue, cutter, id, pub_year)
             else:
-                tags = "{0}\n{1}\n{2}-{3}\n{4}-{5}".format(title, catalogue, cutter, id, pub_date, copy_info)
+                tags = "{0}\n{1}\n{2}-{3}\n{4}-{5}".format(title, catalogue, cutter, id, pub_year, copy_info)
 
             tags_list.append(tags)
         else:
@@ -240,10 +240,11 @@ def make_pdf(array,page_num,row,col):
     """
     import time
 
-    timestr = time.strftime("%m%d%H%M")
+    timestr = time.strftime("%m%d-%H%M")
     table_format = "{}x{}".format(row,col)
     name_base = "BookTags{}_{}".format(table_format,timestr)
     name_ext = "pdf"
+    max_sn = ""
 
     for i in range(page_num):
         filename = "{}-p{:02d}.{}".format(name_base,i,name_ext)
@@ -313,18 +314,18 @@ def cli():
 
     :return:
     """
-    filename = "E:/_Documents/GitHub/PyCharm_Workspace/BookTags/tmp/bookshelf_callnumber_308.csv"
+    filename = "E:/_Documents/GitHub/PyCharm_Workspace/BookTags/tmp/bookshelf_main.csv"
     # 需要去掉的欄位
-    # delete :
+    # removed :
     # reprint :
 
     # 去掉錯誤記錄
-    DELETE = True
+    REMOVED = True
     # 只印新紀錄
     REPRINT_ONLY = True
 
 
-    tags = get_df(filename,DELETE,REPRINT_ONLY)
+    tags = get_df(filename,REMOVED,REPRINT_ONLY)
 
     page_num,new_tags = format_tags(tags,10,14)
     make_pdf(new_tags,page_num,10,14)
