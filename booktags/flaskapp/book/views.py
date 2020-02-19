@@ -117,9 +117,38 @@ def data():
 def get_book():
     return f"Hello book index : {id}"
 
-@book.route('/post', methods=['GET', 'POST'])
+
+@book.route('/post/', methods=['GET', 'POST'])
 def post_book():
-    return f"Hello book : post"
+    """
+    post new book entry
+    :return:
+    """
+    book = BookMain.query.all()
+    id = int(book[-1].id) + 1
+    print(f"id is : {id}")
+    form = EditBookForm()
+    if form.validate_on_submit():
+        book.id = form.id.data
+        book.isbn = form.isbn.data
+        book.title_short = form.title_short.data
+        book.title = form.title.data
+        book.catalogue = form.catalogue.data
+        book.cutter = form.cutter.data
+        book.pub_year = form.pub_year.data
+        book.copy_info = form.copy_info.data
+        book.get_link = form.get_link.data
+        book.note = form.note.data
+        book.reprint = form.reprint.data
+        book.removed = form.removed.data
+        book.keepsite = form.keepsite.data
+
+        db.session.add(book)
+        db.session.commit()
+        flash('Your book data has been added.', 'success')
+        return redirect(url_for('book.index'))
+    form.id.data = id
+    return render_template('book/edit_book.html', form=form)
 
 
 @book.route('/edit/<int:id>', methods=['GET', 'POST'])
