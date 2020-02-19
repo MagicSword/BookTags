@@ -6,13 +6,18 @@
 
 {% block page_content %}
 
+{% block page_content_nav %}
 <div class="book-tabs">
     <ul class="nav nav-tabs">
         <li class="nav-item" class="active"><a class="nav-link" href="{{ url_for('book.index') }}">Index</a></li>
 
         <li class="nav-item" class="active"><a class="nav-link" href="{{ url_for('book.list_book') }}">List Books</a></li>
+        <li class="nav-item" class="active"><a class="nav-link" href="{{ url_for('book.hackmd_meta') }}">Hackmd Meta</a></li>
     </ul>
 
+{% endblock %}
+
+{% block page_content_block %}
 
 {% if pagination %}
 <div class="pagination container-fluid text-center">
@@ -58,5 +63,6 @@
     {{ macros.pagination_widget(pagination, '.index') }}
 </div>
 {% endif %}
+{% endblock %}
 
 {% endblock %}

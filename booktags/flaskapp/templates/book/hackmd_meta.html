@@ -1,0 +1,27 @@
+{% extends "book/index.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "_macros.html" as macros %}
+
+{% block title %}Booktags - Hackmd Meta{% endblock %}
+
+{% block page_content %}
+
+
+    {% block page_content_block %}
+
+    <form action="" method=post>
+   {{form.hidden_tag()}}
+    <div class="form-group">
+   <dl>
+      <dt>Book SN:
+      <dd>{{ form.booksn }}
+      <dt>Submit
+      <dd><button type="submit" class="btn btn-default">Submit</button>
+      <dt>Meta:
+      <dd>{{ form.body(cols="80", rows="14") }}}
+   </dl>
+    </form>
+
+    {% endblock %}
+
+{% endblock %}

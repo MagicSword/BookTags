@@ -19,6 +19,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, BooleanField, SelectField,\
     SubmitField,DateField,IntegerField
 from wtforms.validators import DataRequired, Length, Email, Regexp
+from wtforms.widgets import TextArea
 from wtforms import ValidationError
 # from flask_pagedown.fields import PageDownField
 from ..model.models import Role, User
@@ -40,6 +41,11 @@ class EditBookForm(FlaskForm):
     removed = StringField('Removed', validators=[Length(0, 64)])
     keepsite = StringField('Keep site', validators=[Length(0, 64)])
     submit = SubmitField('Submit')
+
+class HackmdMeta(FlaskForm):
+    booksn = StringField('Books SN', validators=[Length(0, 64)])
+    submit = SubmitField('Submit')
+    body = StringField('body', widget=TextArea())
 
 
 if __name__ == '__main__':

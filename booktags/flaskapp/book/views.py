@@ -28,7 +28,7 @@ from datatables import ColumnDT, DataTables
 from .. import auth
 from .. import db
 
-from .forms import EditBookForm
+from .forms import EditBookForm, HackmdMeta
 # from booktags.db.basemodels import Book
 from booktags.flaskapp.model.models import BookMain
 
@@ -169,7 +169,26 @@ def edit_book(id):
 def del_book(id):
     return f"Hello book index: del {id}"
 
+@book.route('/hackmdmeta', methods=['GET', 'POST'])
+def hackmd_meta():
+    """
+    
+    :return: 
+    """
+    from booktags.vendor.hackmd_meta import get_hackmdmeta
+    form = HackmdMeta()
+    if form.validate_on_submit():
+        booksn = str(form.booksn.data)
+        # print(f"booksn is : {booksn}")
+        temp = get_hackmdmeta(booksn)
+        # print(temp)
+        form.body.data = temp
 
+        # flash('Your book data has been updated.', 'success')
+        # return redirect(url_for('book.hackmd_meta'))
+
+
+    return render_template('book/hackmd_meta.html',form=form)
 
 
 if __name__ == '__main__':
