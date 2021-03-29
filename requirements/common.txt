@@ -42,7 +42,7 @@ pickleshare==0.7.5
 ply==3.11
 prompt-toolkit==3.0.2
 pycparser==2.19
-Pygments==2.5.2
+Pygments==2.7.4
 pyOpenSSL==19.1.0
 PySocks==1.7.1
 python-dateutil==2.8.1

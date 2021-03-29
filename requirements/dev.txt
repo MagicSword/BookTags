@@ -5,7 +5,7 @@ coverage==5.0.1
 faker==3.0.0
 httpie==1.0.3
 idna==2.8
-Pygments==2.5.2
+Pygments==2.7.4
 requests==2.22.0
 urllib3==1.25.7
 selenium==3.141.0
