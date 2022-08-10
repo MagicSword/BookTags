@@ -14,6 +14,12 @@
 #   - If the __file__ attribute on a module is a relative path and
 #     the current directory is changed with os.chdir(), an incorrect
 #     path will be displayed.
+#     圖書資料的id 是6位的數位，簡易搜尋預設是以 FullText
+#     進階搜尋可指定多個條件，以 AND ，OR ，NOT 組合搜尋。
+#     搜尋結果列表會列出多筆資料，動態載入
+#     Log
+#     * ylccb lib system upgrade, url renew
+
 
 from typing import List,Dict
 from abc  import ABC
@@ -32,17 +38,18 @@ from booktags.crawlers.base import BaseCrawler
 
 class LibYlcCrawler(BaseCrawler):
     """
-    Search 雲林縣公共圖書館	    http://library.ylccb.gov.tw/webpacIndex.jsp
+    Search 雲林縣公共圖書館	   https://webpacx.ylccb.gov.tw/
     1. regular data
     2. marc
 
 
     """
-    base_domain="http://library.ylccb.gov.tw"
-    search_domain="http://library.ylccb.gov.tw"
+    base_domain="https://webpacx.ylccb.gov.tw/"
+    search_domain="https://webpacx.ylccb.gov.tw/"
     # 這是簡單的 booksearch.do , 長列表是 bookSearchList.do
     search_path="/booksearch.do?searchtype=simplesearch&execodeHidden=true&execode=webpac.dataType.book&authoriz=1&search_field=ISBN&search_input="
-    exportiso_path="/exportISOPage.jsp?books="
+    exportiso_path = "/api/HyLibWS/exportIOS?marc_id="
+
 
     book_path="/bookDetail.do?id="
     book_top_path="/maintain/bookDetailAssdataAjax.do?id="

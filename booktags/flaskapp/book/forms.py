@@ -40,6 +40,7 @@ class EditBookForm(FlaskForm):
     reprint = StringField('Reprint', validators=[Length(0, 64)])
     removed = StringField('Removed', validators=[Length(0, 64)])
     keepsite = StringField('Keep site', validators=[Length(0, 64)])
+    eisbn = StringField('eISBN', validators=[Length(0, 64)])
     submit = SubmitField('Submit')
 
 class HackmdMeta(FlaskForm):

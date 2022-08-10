@@ -176,7 +176,7 @@ def get_df(filename,REMOVED,REPRINT_ONLY):
     :return: 15:10 df
     """
     tags_list = []
-    df_read = pd.read_csv(filename)
+    df_read = pd.read_csv(filename, encoding = 'utf8')
     # remove missing values
     df_csv = df_read.fillna(value="")
     for index, row in df_csv.iterrows():
@@ -240,7 +240,7 @@ def make_pdf(array,page_num,row,col):
     """
     import time
 
-    timestr = time.strftime("%m%d-%H%M")
+    timestr = time.strftime("%Y.%m.%d-%H.%M")
     table_format = "{}x{}".format(row,col)
     name_base = "BookTags{}_{}".format(table_format,timestr)
     name_ext = "pdf"

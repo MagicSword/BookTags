@@ -55,6 +55,7 @@ class BookMain(db.Model):
     reprint = db.Column(db.String(Boolean_LEN), nullable=True)
     removed = db.Column(db.String(Boolean_LEN), nullable=True)
     keepsite = db.Column(db.String(ID_LEN), nullable=True)
+    eisbn = db.Column(db.String(ID_LEN), nullable=True)
 
     # marc_json = Column(JSON(), nullable=True)
 

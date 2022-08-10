@@ -44,7 +44,43 @@
 
 <!--    </form>-->
 
-    {{ wtf.quick_form(form,form_type="inline ",extra_classes="form-horizontal",role="form") }}
+<!--       {{ wtf.quick_form(form,form_type="horizontal ",extra_classes="form-horizontal",role="form") }}   -->
+
+
+<table class="table table-striped table-hover table-responsive">
+	<thead>
+	</thead>
+<tbody>
+
+
+<form class="form form-horizontal" method="post" role="form">
+  {{ form.hidden_tag() }}
+  {{ wtf.form_errors(form, hiddens="only") }}
+
+  {{ wtf.form_field(form.id) }}
+  {{ wtf.form_field(form.isbn) }}
+  {{ wtf.form_field(form.title_short) }}
+  {{ wtf.form_field(form.title) }}
+  {{ wtf.form_field(form.catalogue) }}
+  {{ wtf.form_field(form.cutter) }}
+  {{ wtf.form_field(form.pub_year) }}
+  {{ wtf.form_field(form.copy_info) }}
+  {{ wtf.form_field(form.get_link) }}
+  {{ wtf.form_field(form.note) }}
+  {{ wtf.form_field(form.reprint) }}
+  {{ wtf.form_field(form.removed) }}
+  {{ wtf.form_field(form.keepsite) }}
+  {{ wtf.form_field(form.eisbn) }}
+
+  <div class="form-actions">
+     <button name="action_save" type="submit" class="btn btn-primary">Save Changes</button>
+  </div>
+
+</form>
+
+</tbody>
+</table>
+
 
 </div>
 {% endblock %}

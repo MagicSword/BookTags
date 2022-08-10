@@ -1,5 +1,7 @@
 # Development Notes
 
+- 本文紀錄一些重要的設定、操作
+
 # Setting UP
 
 ```bash
@@ -157,9 +159,33 @@ CLASSTYPE
 var classtype = {"DDC":[{"name":"全部","code":"all"},{"name":"電腦科學、資訊與總類","code":"0"},{"name":"哲學與心理學","code":"1"},{"name":"宗教","code":"2"},{"name":"社會科學","code":"3"},{"name":"語言","code":"4"},{"name":"自然科學","code":"5"},{"name":"技術應用科學","code":"6"},{"name":"藝術與休閒","code":"7"},{"name":"文學","code":"8"},{"name":"歷史、地理與傳記","code":"9"}],"CCL":[{"name":"全部","code":"all"},{"name":"總論","code":"0"},{"name":"哲學類","code":"1"},{"name":"宗教類","code":"2"},{"name":"科學類","code":"3"},{"name":"應用科學類","code":"4"},{"name":"社會科學類","code":"5"},{"name":"史地類","code":"6"},{"name":"世界史地","code":"7"},{"name":"語言文學類","code":"8"},{"name":"藝術類","code":"9"}],"all":[{"name":"全部","code":"all"}]};
 
 
+## 新版的雲林縣圖書館
+
+MARC API
+url = "https://webpacx.ylccb.gov.tw/api/HyLibWS/exportIOS?marc_id=602031"
+最後的六位數字是圖書館的 id
+
+"""
+from urllib.request import urlopen
+import pymarc
 
 
+url = "https://webpacx.ylccb.gov.tw/api/HyLibWS/exportIOS?marc_id=602031"
 
-Rer:
+#record = pymarc.Record(data=urlopen("http://goo.gl/lfJnw9").read())
+
+# marc_binary = io.BytesIO(marc.encode('utf-8'))
+# reader = pymarc.MARCReader(marc_binary, force_utf8="True") 
+
+record = pymarc.Record(data=urlopen(url).read())
+
+for item in record:
+    print(item)
+    
+record['681']['b']
+"""
+
+
+Ref:
 1. [UNIMarcReader](https://gist.github.com/isergey/1051026)
 2. [Schema/Book](https://schema.org/Book)

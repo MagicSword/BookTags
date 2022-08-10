@@ -142,6 +142,7 @@ def post_book():
         book.reprint = form.reprint.data
         book.removed = form.removed.data
         book.keepsite = form.keepsite.data
+        book.eisbn = form.eisbn.data
 
         db.session.add(book)
         db.session.commit()
@@ -174,6 +175,7 @@ def edit_book(id):
         book.reprint = form.reprint.data
         book.removed = form.removed.data
         book.keepsite = form.keepsite.data
+        book.eisbn = form.eisbn.data
 
         db.session.add(book)
         db.session.commit()
@@ -192,6 +194,7 @@ def edit_book(id):
     form.reprint.data = book.reprint
     form.removed.data = book.removed
     form.keepsite.data = book.keepsite
+    form.eisbn.data = book.eisbn
     return render_template('book/edit_book.html', form=form)
 
 @book.route('/del/<int:id>', methods=['GET', 'POST'])
